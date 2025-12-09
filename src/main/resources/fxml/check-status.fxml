@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.visa.management.controllers.CheckStatusController"
+            styleClass="root">
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar">
+            <padding>
+                <Insets top="20" right="40" bottom="20" left="40"/>
+            </padding>
+            <Button text="← Back" onAction="#handleBackToHome" styleClass="btn-back"/>
+            <Label text="🌍 Visa Portal" styleClass="logo">
+                <font>
+                    <Font name="System Bold" size="24"/>
+                </font>
+            </Label>
+        </HBox>
+    </top>
+
+    <!-- Center Content with ScrollPane -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox alignment="TOP_CENTER" spacing="30">
+                <padding>
+                    <Insets top="60" right="40" bottom="60" left="40"/>
+                </padding>
+
+                <!-- Check Status Form -->
+                <VBox spacing="25" styleClass="form-container" maxWidth="550" prefWidth="550">
+                    <padding>
+                        <Insets top="40" right="40" bottom="40" left="40"/>
+                    </padding>
+
+                    <!-- Header -->
+                    <VBox alignment="CENTER" spacing="10">
+                        <Label text="Check Visa Status" styleClass="section-title">
+                            <font>
+                                <Font name="System Bold" size="28"/>
+                            </font>
+                        </Label>
+                        <Label text="Track your visa application progress" styleClass="section-subtitle">
+                            <font>
+                                <Font size="14"/>
+                            </font>
+                        </Label>
+                    </VBox>
+
+                    <!-- Application ID -->
+                    <VBox spacing="8">
+                        <Label text="Application ID *" styleClass="field-label">
+                            <font>
+                                <Font name="System Bold" size="13"/>
+                            </font>
+                        </Label>
+                        <TextField fx:id="applicationIdField" promptText="Enter your application ID" 
+                                   styleClass="text-field" prefHeight="40"/>
+                    </VBox>
+
+                    <!-- Passport Number -->
+                    <VBox spacing="8">
+                        <Label text="Passport Number *" styleClass="field-label">
+                            <font>
+                                <Font name="System Bold" size="13"/>
+                            </font>
+                        </Label>
+                        <TextField fx:id="passportField" promptText="Enter your passport number" 
+                                   styleClass="text-field" prefHeight="40"/>
+                    </VBox>
+
+                    <!-- Check Button -->
+                    <Button text="Check Status" onAction="#handleCheckStatus" styleClass="btn-primary" prefHeight="45">
+                        <font>
+                            <Font name="System Bold" size="15"/>
+                        </font>
+                    </Button>
+
+                </VBox>
+
+                <!-- Status Display Container -->
+                <VBox fx:id="statusContainer" spacing="20" styleClass="status-card" maxWidth="550" prefWidth="550">
+                    <padding>
+                        <Insets top="30" right="30" bottom="30" left="30"/>
+                    </padding>
+
+                    <!-- Status Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="status-header">
+                        <Label text="Application Status" styleClass="status-title">
+                            <font>
+                                <Font name="System Bold" size="20"/>
+                            </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="statusBadge" text="Processing" styleClass="status-badge"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <!-- Status Details -->
+                    <VBox spacing="15" styleClass="status-details">
+                        <!-- Application ID -->
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Application ID:" styleClass="detail-label" prefWidth="150">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="appIdLabel" text="VSA-2024-12345" styleClass="detail-value">
+                                <font>
+                                    <Font size="13"/>
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <!-- Applicant Name -->
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Applicant Name:" styleClass="detail-label" prefWidth="150">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="nameLabel" text="John Doe" styleClass="detail-value">
+                                <font>
+                                    <Font size="13"/>
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <!-- Visa Type -->
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Visa Type:" styleClass="detail-label" prefWidth="150">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="visaTypeLabel" text="Tourist Visa" styleClass="detail-value">
+                                <font>
+                                    <Font size="13"/>
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <!-- Submission Date -->
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Submission Date:" styleClass="detail-label" prefWidth="150">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="submissionDateLabel" text="Dec 1, 2025" styleClass="detail-value">
+                                <font>
+                                    <Font size="13"/>
+                                </font>
+                            </Label>
+                        </HBox>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Timeline -->
+                    <VBox spacing="20" styleClass="timeline">
+                        <Label text="Application Progress" styleClass="timeline-title">
+                            <font>
+                                <Font name="System Bold" size="16"/>
+                            </font>
+                        </Label>
+
+                        <!-- Timeline Item 1 - Completed -->
+                        <HBox spacing="15" styleClass="timeline-item-completed">
+                            <VBox alignment="CENTER">
+                                <Label text="✓" styleClass="timeline-marker-completed">
+                                    <font>
+                                        <Font name="System Bold" size="16"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Application Submitted" styleClass="timeline-step">
+                                    <font>
+                                        <Font name="System Bold" size="14"/>
+                                    </font>
+                                </Label>
+                                <Label text="Dec 1, 2025" styleClass="timeline-date">
+                                    <font>
+                                        <Font size="12"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Timeline Item 2 - Completed -->
+                        <HBox spacing="15" styleClass="timeline-item-completed">
+                            <VBox alignment="CENTER">
+                                <Label text="✓" styleClass="timeline-marker-completed">
+                                    <font>
+                                        <Font name="System Bold" size="16"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Documents Verified" styleClass="timeline-step">
+                                    <font>
+                                        <Font name="System Bold" size="14"/>
+                                    </font>
+                                </Label>
+                                <Label text="Dec 3, 2025" styleClass="timeline-date">
+                                    <font>
+                                        <Font size="12"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Timeline Item 3 - Active -->
+                        <HBox spacing="15" styleClass="timeline-item-active">
+                            <VBox alignment="CENTER">
+                                <Label text="⟳" styleClass="timeline-marker-active">
+                                    <font>
+                                        <Font name="System Bold" size="16"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Under Review" styleClass="timeline-step">
+                                    <font>
+                                        <Font name="System Bold" size="14"/>
+                                    </font>
+                                </Label>
+                                <Label text="In Progress" styleClass="timeline-date">
+                                    <font>
+                                        <Font size="12"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Timeline Item 4 - Pending -->
+                        <HBox spacing="15" styleClass="timeline-item-pending">
+                            <VBox alignment="CENTER">
+                                <Label text="○" styleClass="timeline-marker-pending">
+                                    <font>
+                                        <Font name="System Bold" size="16"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Decision Pending" styleClass="timeline-step">
+                                    <font>
+                                        <Font name="System Bold" size="14"/>
+                                    </font>
+                                </Label>
+                                <Label text="Awaiting" styleClass="timeline-date">
+                                    <font>
+                                        <Font size="12"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

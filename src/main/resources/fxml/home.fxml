@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.visa.management.controllers.HomeController"
+            styleClass="root">
+
+    <!-- Header -->
+    <top>
+        <VBox styleClass="header">
+            <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar">
+                <padding>
+                    <Insets top="20" right="40" bottom="20" left="40"/>
+                </padding>
+                <Label text="🌍 Visa Portal" styleClass="logo">
+                    <font>
+                        <Font name="System Bold" size="24"/>
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Home" styleClass="nav-link"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Center Content -->
+    <center>
+        <VBox alignment="CENTER" spacing="40" styleClass="hero-section">
+            <padding>
+                <Insets top="80" right="40" bottom="80" left="40"/>
+            </padding>
+
+            <!-- Hero Text -->
+            <VBox alignment="CENTER" spacing="15">
+                <Label text="Welcome to Visa Management System" styleClass="hero-title">
+                    <font>
+                        <Font name="System Bold" size="42"/>
+                    </font>
+                </Label>
+                <Label text="Your gateway to seamless visa application and processing" styleClass="hero-subtitle">
+                    <font>
+                        <Font size="18"/>
+                    </font>
+                </Label>
+            </VBox>
+
+            <!-- Action Cards -->
+            <HBox alignment="CENTER" spacing="30">
+                <!-- Login Card -->
+                <VBox alignment="CENTER" spacing="15" styleClass="action-card">
+                    <padding>
+                        <Insets top="40" right="30" bottom="40" left="30"/>
+                    </padding>
+                    <Label text="🔐" styleClass="card-icon">
+                        <font>
+                            <Font size="48"/>
+                        </font>
+                    </Label>
+                    <Label text="Login" styleClass="card-title">
+                        <font>
+                            <Font name="System Bold" size="20"/>
+                        </font>
+                    </Label>
+                    <Label text="Access your account and" styleClass="card-description" wrapText="true" alignment="CENTER"/>
+                    <Label text="track your applications" styleClass="card-description" wrapText="true" alignment="CENTER"/>
+                    <Button text="Login" fx:id="loginButton" onAction="#handleLogin" styleClass="btn-primary" prefWidth="150">
+                        <font>
+                            <Font name="System Bold" size="14"/>
+                        </font>
+                    </Button>
+                </VBox>
+
+                <!-- Apply Visa Card -->
+                <VBox alignment="CENTER" spacing="15" styleClass="action-card">
+                    <padding>
+                        <Insets top="40" right="30" bottom="40" left="30"/>
+                    </padding>
+                    <Label text="✈️" styleClass="card-icon">
+                        <font>
+                            <Font size="48"/>
+                        </font>
+                    </Label>
+                    <Label text="Apply for Visa" styleClass="card-title">
+                        <font>
+                            <Font name="System Bold" size="20"/>
+                        </font>
+                    </Label>
+                    <Label text="Start a new visa application" styleClass="card-description" wrapText="true" alignment="CENTER"/>
+                    <Label text="with our simple process" styleClass="card-description" wrapText="true" alignment="CENTER"/>
+                    <Button text="Apply Now" fx:id="applyVisaButton" onAction="#handleApplyVisa" styleClass="btn-primary" prefWidth="150">
+                        <font>
+                            <Font name="System Bold" size="14"/>
+                        </font>
+                    </Button>
+                </VBox>
+
+                <!-- Check Status Card -->
+                <VBox alignment="CENTER" spacing="15" styleClass="action-card">
+                    <padding>
+                        <Insets top="40" right="30" bottom="40" left="30"/>
+                    </padding>
+                    <Label text="📋" styleClass="card-icon">
+                        <font>
+                            <Font size="48"/>
+                        </font>
+                    </Label>
+                    <Label text="Check Status" styleClass="card-title">
+                        <font>
+                            <Font name="System Bold" size="20"/>
+                        </font>
+                    </Label>
+                    <Label text="Track your visa application" styleClass="card-description" wrapText="true" alignment="CENTER"/>
+                    <Label text="status in real-time" styleClass="card-description" wrapText="true" alignment="CENTER"/>
+                    <Button text="Check Status" fx:id="checkStatusButton" onAction="#handleCheckStatus" styleClass="btn-primary" prefWidth="150">
+                        <font>
+                            <Font name="System Bold" size="14"/>
+                        </font>
+                    </Button>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+
+    <!-- Footer -->
+    <bottom>
+        <VBox styleClass="footer" alignment="CENTER">
+            <padding>
+                <Insets top="20" right="40" bottom="20" left="40"/>
+            </padding>
+            <Label text="© 2025 Visa Management System. All rights reserved." styleClass="footer-text">
+                <font>
+                    <Font size="12"/>
+                </font>
+            </Label>
+        </VBox>
+    </bottom>
+
+</BorderPane>

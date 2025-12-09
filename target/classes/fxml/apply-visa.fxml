@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.visa.management.controllers.ApplyVisaController"
+            styleClass="root">
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar">
+            <padding>
+                <Insets top="20" right="40" bottom="20" left="40"/>
+            </padding>
+            <Button text="← Back" onAction="#handleBackToHome" styleClass="btn-back"/>
+            <Label text="🌍 Visa Portal" styleClass="logo">
+                <font>
+                    <Font name="System Bold" size="24"/>
+                </font>
+            </Label>
+        </HBox>
+    </top>
+
+    <!-- Center Content with ScrollPane -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox alignment="TOP_CENTER" spacing="30">
+                <padding>
+                    <Insets top="40" right="40" bottom="40" left="40"/>
+                </padding>
+
+                <!-- Form Container -->
+                <VBox spacing="25" styleClass="form-container" maxWidth="700" prefWidth="700">
+                    <padding>
+                        <Insets top="40" right="40" bottom="40" left="40"/>
+                    </padding>
+
+                    <!-- Header -->
+                    <VBox alignment="CENTER" spacing="10">
+                        <Label text="Apply for Visa" styleClass="section-title">
+                            <font>
+                                <Font name="System Bold" size="28"/>
+                            </font>
+                        </Label>
+                        <Label text="Complete the form below to submit your visa application" styleClass="section-subtitle">
+                            <font>
+                                <Font size="14"/>
+                            </font>
+                        </Label>
+                    </VBox>
+
+                    <!-- Name Fields -->
+                    <HBox spacing="15">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="First Name *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="firstNameField" promptText="First name" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Last Name *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="lastNameField" promptText="Last name" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- DOB & Nationality -->
+                    <HBox spacing="15">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Date of Birth *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <DatePicker fx:id="dobPicker" styleClass="date-picker" prefHeight="40" maxWidth="Infinity"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Nationality *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <ComboBox fx:id="nationalityCombo" promptText="Select nationality" styleClass="combo-box" prefHeight="40" maxWidth="Infinity"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Passport & Visa Type -->
+                    <HBox spacing="15">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Passport Number *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="passportField" promptText="Passport number" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Visa Type *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <ComboBox fx:id="visaTypeCombo" promptText="Select visa type" styleClass="combo-box" prefHeight="40" maxWidth="Infinity"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Destination -->
+                    <VBox spacing="8">
+                        <Label text="Destination Country *" styleClass="field-label">
+                            <font>
+                                <Font name="System Bold" size="13"/>
+                            </font>
+                        </Label>
+                        <ComboBox fx:id="destinationCombo" promptText="Select destination" styleClass="combo-box" prefHeight="40" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <!-- Purpose -->
+                    <VBox spacing="8">
+                        <Label text="Purpose of Visit" styleClass="field-label">
+                            <font>
+                                <Font name="System Bold" size="13"/>
+                            </font>
+                        </Label>
+                        <TextArea fx:id="purposeArea" promptText="Describe the purpose of your visit" 
+                                  styleClass="text-area" prefRowCount="4" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Document Upload -->
+                    <VBox spacing="8">
+                        <Label text="Upload Documents" styleClass="field-label">
+                            <font>
+                                <Font name="System Bold" size="13"/>
+                            </font>
+                        </Label>
+                        <VBox styleClass="file-upload" alignment="CENTER" spacing="10" onMouseClicked="#handleUploadDocuments">
+                            <padding>
+                                <Insets top="30" right="20" bottom="30" left="20"/>
+                            </padding>
+                            <Label text="📎" styleClass="upload-icon">
+                                <font>
+                                    <Font size="32"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="fileLabel" text="Click to choose files" styleClass="upload-text">
+                                <font>
+                                    <Font size="13"/>
+                                </font>
+                            </Label>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Submit Button -->
+                    <Button text="Submit Application" onAction="#handleSubmit" styleClass="btn-primary" prefHeight="45">
+                        <font>
+                            <Font name="System Bold" size="15"/>
+                        </font>
+                    </Button>
+
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
