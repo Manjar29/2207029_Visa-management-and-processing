@@ -42,7 +42,7 @@
                         <Font name="System Bold" size="42"/>
                     </font>
                 </Label>
-                <Label text="" styleClass="hero-subtitle">
+                <Label text="Your gateway to seamless visa application and processing" styleClass="hero-subtitle">
                     <font>
                         <Font size="18"/>
                     </font>

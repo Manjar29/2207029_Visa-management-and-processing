@@ -1,5 +1,6 @@
 package com.visa.management.controllers;
 
+import com.visa.management.VisaManagementApp;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -26,7 +27,7 @@ public class HomeController {
 
     @FXML
     private void handleCheckStatus() {
-        // Non-functional - UI design only
+        VisaManagementApp.changeScene("/fxml/check-status.fxml", "Check Visa Status - Visa Management System");
     }
 
     @FXML
