@@ -22,7 +22,7 @@ public class HomeController {
 
     @FXML
     private void handleApplyVisa() {
-        // Non-functional - UI design only
+        VisaManagementApp.changeScene("/fxml/select-country.fxml", "Select Destination Country");
     }
 
     @FXML

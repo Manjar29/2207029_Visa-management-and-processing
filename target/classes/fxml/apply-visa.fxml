@@ -50,7 +50,28 @@
                                 <Font size="14"/>
                             </font>
                         </Label>
+                        
+                        <!-- Selected Info -->
+                        <HBox spacing="20" alignment="CENTER">
+                            <Label fx:id="countryInfoLabel" text="Destination: -" styleClass="info-badge">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="visaTypeInfoLabel" text="Visa Type: -" styleClass="info-badge">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                        </HBox>
                     </VBox>
+
+                    <!-- Personal Information Section -->
+                    <Label text="Personal Information" styleClass="section-title">
+                        <font>
+                            <Font name="System Bold" size="20"/>
+                        </font>
+                    </Label>
 
                     <!-- Name Fields -->
                     <HBox spacing="15">
@@ -75,12 +96,12 @@
                     <!-- DOB & Nationality -->
                     <HBox spacing="15">
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Date of Birth *" styleClass="field-label">
+                            <Label text="National ID / Citizen Number *" styleClass="field-label">
                                 <font>
                                     <Font name="System Bold" size="13"/>
                                 </font>
                             </Label>
-                            <DatePicker fx:id="dobPicker" styleClass="date-picker" prefHeight="40" maxWidth="Infinity"/>
+                            <TextField fx:id="nationalIdField" promptText="Enter National ID or Citizen Number" styleClass="text-field" prefHeight="40"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Nationality *" styleClass="field-label">
@@ -92,44 +113,362 @@
                         </VBox>
                     </HBox>
 
-                    <!-- Passport & Visa Type -->
+                    <!-- Passport Number -->
+                    <VBox spacing="8">
+                        <Label text="Passport Number *" styleClass="field-label">
+                            <font>
+                                <Font name="System Bold" size="13"/>
+                            </font>
+                        </Label>
+                        <TextField fx:id="passportField" promptText="Passport number" styleClass="text-field" prefHeight="40"/>
+                    </VBox>
+
+                    <!-- Contact Information Section -->
+                    <Label text="Contact Information" styleClass="section-title">
+                        <font>
+                            <Font name="System Bold" size="20"/>
+                        </font>
+                    </Label>
+
+                    <!-- Email & Phone -->
                     <HBox spacing="15">
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Passport Number *" styleClass="field-label">
+                            <Label text="Email Address *" styleClass="field-label">
                                 <font>
                                     <Font name="System Bold" size="13"/>
                                 </font>
                             </Label>
-                            <TextField fx:id="passportField" promptText="Passport number" styleClass="text-field" prefHeight="40"/>
+                            <TextField fx:id="emailField" promptText="Email address" styleClass="text-field" prefHeight="40"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Visa Type *" styleClass="field-label">
+                            <Label text="Phone Number *" styleClass="field-label">
                                 <font>
                                     <Font name="System Bold" size="13"/>
                                 </font>
                             </Label>
-                            <ComboBox fx:id="visaTypeCombo" promptText="Select visa type" styleClass="combo-box" prefHeight="40" maxWidth="Infinity"/>
+                            <TextField fx:id="phoneField" promptText="Phone number" styleClass="text-field" prefHeight="40"/>
                         </VBox>
                     </HBox>
 
-                    <!-- Destination -->
+                    <!-- Address -->
                     <VBox spacing="8">
-                        <Label text="Destination Country *" styleClass="field-label">
+                        <Label text="Residential Address *" styleClass="field-label">
                             <font>
                                 <Font name="System Bold" size="13"/>
                             </font>
                         </Label>
-                        <ComboBox fx:id="destinationCombo" promptText="Select destination" styleClass="combo-box" prefHeight="40" maxWidth="Infinity"/>
+                        <TextArea fx:id="addressArea" promptText="Enter your complete residential address" 
+                                  styleClass="text-area" prefRowCount="3" wrapText="true"/>
                     </VBox>
 
-                    <!-- Purpose -->
+                    <!-- TOURIST VISA SPECIFIC SECTION -->
+                    <VBox fx:id="touristSection" spacing="15" managed="false" visible="false">
+                        <Label text="Tourist Visa Details" styleClass="section-title">
+                            <font>
+                                <Font name="System Bold" size="20"/>
+                            </font>
+                        </Label>
+                        
+                        <!-- Tourist Spot Details -->
+                        <Label text="Tourist Spot Details" styleClass="section-subtitle">
+                            <font>
+                                <Font name="System Bold" size="16"/>
+                            </font>
+                        </Label>
+                        
+                        <VBox spacing="8">
+                            <Label text="Places to Visit *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextArea fx:id="touristPlaceArea" promptText="List the tourist places you plan to visit" 
+                                      styleClass="text-area" prefRowCount="3" wrapText="true"/>
+                        </VBox>
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Hotel Booking PNR *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="hotelPnrField" promptText="Enter hotel booking PNR" styleClass="text-field" prefHeight="40"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Flight Number *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="flightNoField" promptText="Enter flight number" styleClass="text-field" prefHeight="40"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Journey Date *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <DatePicker fx:id="journeyDatePicker" styleClass="date-picker" prefHeight="40" maxWidth="Infinity"/>
+                        </VBox>
+                        
+                        <!-- Bank Account Details -->
+                        <Label text="Bank Account Details" styleClass="section-subtitle">
+                            <font>
+                                <Font name="System Bold" size="16"/>
+                            </font>
+                        </Label>
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Bank Name *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="bankNameField" promptText="Enter bank name" styleClass="text-field" prefHeight="40"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Account Number *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="accountNumberField" promptText="Enter account number" styleClass="text-field" prefHeight="40"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- References Section -->
+                        <Label text="References (From Destination Country)" styleClass="section-subtitle">
+                            <font>
+                                <Font name="System Bold" size="16"/>
+                            </font>
+                        </Label>
+                        
+                        <VBox spacing="8">
+                            <Label text="References Details *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextArea fx:id="referencesArea" promptText="Enter reference person details (Name, Phone, Address, Relationship)&#10;You can add multiple references, one per line" 
+                                      styleClass="text-area" prefRowCount="4" wrapText="true"/>
+                        </VBox>
+                        
+                        <!-- Add Family Members Section (Optional) -->
+                        <Label text="Add Family Members (Optional)" styleClass="section-subtitle">
+                            <font>
+                                <Font name="System Bold" size="16"/>
+                            </font>
+                        </Label>
+                        
+                        <VBox spacing="8">
+                            <Label text="Family Members Visa Applicant IDs" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextArea fx:id="familyMembersArea" promptText="Enter family members' visa applicant IDs&#10;You can add multiple IDs, one per line&#10;Example: VSA-2025-1234" 
+                                      styleClass="text-area" prefRowCount="3" wrapText="true"/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- MEDICAL VISA SPECIFIC SECTION -->
+                    <VBox fx:id="medicalSection" spacing="15" managed="false" visible="false">
+                        <Label text="Medical Treatment Information" styleClass="section-title">
+                            <font>
+                                <Font name="System Bold" size="20"/>
+                            </font>
+                        </Label>
+                        
+                        <VBox spacing="8">
+                            <Label text="Diagnosis/Medical Condition *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextArea fx:id="diagnosisArea" promptText="Describe your medical condition or diagnosis" 
+                                      styleClass="text-area" prefRowCount="3" wrapText="true"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Hospital Name and Address *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextArea fx:id="hospitalDetailsArea" promptText="Full hospital name and address" 
+                                      styleClass="text-area" prefRowCount="3" wrapText="true"/>
+                        </VBox>
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Doctor's Name *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="doctorNameField" promptText="Doctor's full name" styleClass="text-field" prefHeight="40"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Appointment Date *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <DatePicker fx:id="appointmentDatePicker" styleClass="date-picker" prefHeight="40" maxWidth="Infinity"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- STUDENT VISA SPECIFIC SECTION -->
+                    <VBox fx:id="studentSection" spacing="15" managed="false" visible="false">
+                        <Label text="Academic Information" styleClass="section-title">
+                            <font>
+                                <Font name="System Bold" size="20"/>
+                            </font>
+                        </Label>
+                        
+                        <VBox spacing="8">
+                            <Label text="University/Institution Name *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="universityField" promptText="Full name of university or institution" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Program/Course of Study *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="programField" promptText="Degree program or course name" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Program Duration *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="programDurationField" promptText="e.g., 4 years" styleClass="text-field" prefHeight="40"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Program Start Date *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <DatePicker fx:id="programStartDatePicker" styleClass="date-picker" prefHeight="40" maxWidth="Infinity"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Previous Education Details *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextArea fx:id="educationDetailsArea" promptText="List your previous education qualifications" 
+                                      styleClass="text-area" prefRowCount="3" wrapText="true"/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- WORK VISA SPECIFIC SECTION -->
+                    <VBox fx:id="workSection" spacing="15" managed="false" visible="false">
+                        <Label text="Employment Information" styleClass="section-title">
+                            <font>
+                                <Font name="System Bold" size="20"/>
+                            </font>
+                        </Label>
+                        
+                        <VBox spacing="8">
+                            <Label text="Company Name *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="companyNameField" promptText="Full company name" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Company Address *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextArea fx:id="companyAddressArea" promptText="Complete company address" 
+                                      styleClass="text-area" prefRowCount="2" wrapText="true"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Job Position/Role *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="jobPositionField" promptText="Your job title or position" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Contract Duration *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="contractDurationField" promptText="e.g., 2 years" styleClass="text-field" prefHeight="40"/>
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Employment Start Date *" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <DatePicker fx:id="employmentStartDatePicker" styleClass="date-picker" prefHeight="40" maxWidth="Infinity"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <VBox spacing="8">
+                            <Label text="Salary Information *" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="salaryField" promptText="Annual salary" styleClass="text-field" prefHeight="40"/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Travel History Section -->
+                    <Label text="Travel History" styleClass="section-title">
+                        <font>
+                            <Font name="System Bold" size="20"/>
+                        </font>
+                    </Label>
+
+                    <!-- Travel History -->
                     <VBox spacing="8">
-                        <Label text="Purpose of Visit" styleClass="field-label">
+                        <Label text="Have you traveled internationally before? *" styleClass="field-label">
                             <font>
                                 <Font name="System Bold" size="13"/>
                             </font>
                         </Label>
-                        <TextArea fx:id="purposeArea" promptText="Describe the purpose of your visit" 
+                        <ComboBox fx:id="travelHistoryCombo" promptText="Select travel history" styleClass="combo-box" prefHeight="40" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <!-- Previous Travel Details -->
+                    <VBox spacing="8">
+                        <Label text="Previous Travel Details" styleClass="field-label">
+                            <font>
+                                <Font name="System Bold" size="13"/>
+                            </font>
+                        </Label>
+                        <TextArea fx:id="previousTravelArea" promptText="List countries visited and dates (if applicable)" 
                                   styleClass="text-area" prefRowCount="4" wrapText="true"/>
                     </VBox>
 

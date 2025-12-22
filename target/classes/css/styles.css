@@ -119,7 +119,8 @@
 }
 
 .section-subtitle {
-    -fx-text-fill: #64748b;
+    -fx-text-fill: #475569;
+    -fx-font-weight: 600;
 }
 
 /* Form Fields */
@@ -158,9 +159,36 @@
 .combo-box .list-cell {
     -fx-background-color: white;
     -fx-text-fill: #1e293b;
+    -fx-padding: 8 12 8 12;
+}
+
+.combo-box .list-cell:filled:hover {
+    -fx-background-color: #f1f5f9;
 }
 
 .combo-box .list-cell:filled:selected {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: #1e293b;
+    -fx-padding: 8 12 8 12;
+}
+
+.combo-box-popup .list-view .list-cell:filled:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.combo-box-popup .list-view .list-cell:filled:selected {
     -fx-background-color: #2563eb;
     -fx-text-fill: white;
 }
@@ -402,3 +430,88 @@
     -fx-text-fill: white;
     -fx-font-size: 12px;
 }
+
+/* Country Selection Cards */
+.country-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.country-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);
+    -fx-translate-y: -3;
+}
+
+.country-flag {
+    -fx-text-fill: #1e293b;
+}
+
+.btn-country {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+}
+
+.btn-country:hover {
+    -fx-background-color: #1e40af;
+}
+
+/* Visa Type Cards */
+.visa-type-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.visa-type-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4);
+    -fx-border-color: #2563eb;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+}
+
+.visa-icon {
+    -fx-text-fill: #2563eb;
+}
+
+.visa-type-title {
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: bold;
+}
+
+.visa-type-desc {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+}
+
+/* Info Badge */
+.info-badge {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16;
+}
+
+/* Read-only Text Area */
+.text-area-readonly {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-font-size: 13px;
+    -fx-font-family: "Consolas", "Monaco", monospace;
+}
+
+.text-area-readonly .content {
+    -fx-background-color: #f8fafc;
+}
+
