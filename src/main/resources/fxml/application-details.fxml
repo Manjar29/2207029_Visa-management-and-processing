@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.visa.management.controllers.ApplicationDetailsController"
+            styleClass="root">
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar">
+            <padding>
+                <Insets top="20" right="40" bottom="20" left="40"/>
+            </padding>
+            <Button text="← Back to Dashboard" onAction="#handleBack" styleClass="btn-back"/>
+            <Label text="🌍 Application Details" styleClass="logo">
+                <font>
+                    <Font name="System Bold" size="24"/>
+                </font>
+            </Label>
+        </HBox>
+    </top>
+
+    <!-- Center Content -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="30" alignment="TOP_CENTER">
+                <padding>
+                    <Insets top="40" right="40" bottom="40" left="40"/>
+                </padding>
+
+                <!-- Main Details Card -->
+                <VBox spacing="25" styleClass="form-container" maxWidth="800" prefWidth="800">
+                    <padding>
+                        <Insets top="40" right="40" bottom="40" left="40"/>
+                    </padding>
+
+                    <!-- Header Section -->
+                    <HBox alignment="CENTER_LEFT" spacing="20">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Application Information" styleClass="section-title">
+                                <font>
+                                    <Font name="System Bold" size="26"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="applicationIdLabel" text="VSA1234567" styleClass="section-subtitle">
+                                <font>
+                                    <Font size="16"/>
+                                </font>
+                            </Label>
+                        </VBox>
+                        <Label fx:id="statusLabel" text="Processing" styleClass="status-badge"
+                               style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 5; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <!-- Personal Information Section -->
+                    <VBox spacing="20">
+                        <Label text="Personal Information" styleClass="section-header">
+                            <font>
+                                <Font name="System Bold" size="18"/>
+                            </font>
+                        </Label>
+
+                        <GridPane hgap="30" vgap="20">
+                            <!-- Row 1 -->
+                            <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                                <Label text="First Name" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="firstNameLabel" text="John" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                <Label text="Last Name" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="lastNameLabel" text="Doe" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <!-- Row 2 -->
+                            <VBox spacing="5" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                                <Label text="National ID" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="nationalIdLabel" text="123456789" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                                <Label text="Nationality" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="nationalityLabel" text="American" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <!-- Row 3 -->
+                            <VBox spacing="5" GridPane.rowIndex="2" GridPane.columnIndex="0">
+                                <Label text="Passport Number" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="passportLabel" text="US123456789" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                                <Label text="Email" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="emailLabel" text="john.doe@email.com" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <!-- Row 4 -->
+                            <VBox spacing="5" GridPane.rowIndex="3" GridPane.columnIndex="0">
+                                <Label text="Phone" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="phoneLabel" text="+1234567890" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                                <Label text="Applied Date" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="appliedDateLabel" text="2025-12-31" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </GridPane>
+
+                        <!-- Full Width Fields -->
+                        <VBox spacing="5">
+                            <Label text="Address" styleClass="field-label">
+                                <font>
+                                    <Font name="System Bold" size="12"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="addressLabel" text="123 Main Street, City, Country" styleClass="field-value" wrapText="true">
+                                <font>
+                                    <Font size="14"/>
+                                </font>
+                            </Label>
+                        </VBox>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Visa Information Section -->
+                    <VBox spacing="20">
+                        <Label text="Visa Information" styleClass="section-header">
+                            <font>
+                                <Font name="System Bold" size="18"/>
+                            </font>
+                        </Label>
+
+                        <GridPane hgap="30" vgap="20">
+                            <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                                <Label text="Destination Country" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="countryLabel" text="India" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                <Label text="Visa Type" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="visaTypeLabel" text="Tourist Visa" styleClass="field-value">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- Approval Details Section (Only visible when approved) -->
+                    <VBox spacing="20" fx:id="approvalSection">
+                        <Separator/>
+                        
+                        <Label text="Approval Details" styleClass="section-header">
+                            <font>
+                                <Font name="System Bold" size="18"/>
+                            </font>
+                        </Label>
+
+                        <GridPane hgap="30" vgap="20">
+                            <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                                <Label text="Visa Duration" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="visaDurationLabel" text="-" styleClass="field-value" visible="false"
+                                       style="-fx-text-fill: #4CAF50; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                <Label text="Approved By" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="approvedByLabel" text="-" styleClass="field-value" visible="false">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                                <Label text="Approval Date" styleClass="field-label">
+                                    <font>
+                                        <Font name="System Bold" size="12"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="approvalDateLabel" text="-" styleClass="field-value" visible="false">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </GridPane>
+                    </VBox>
+
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.visa.management.controllers.AdminDashboardController" styleClass="root" stylesheets="@../css/styles.css">
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar">
+            <padding>
+                <Insets top="20" right="40" bottom="20" left="40"/>
+            </padding>
+            <Label text="🌍 Visa Portal - Admin Dashboard" styleClass="logo">
+                <font>
+                    <Font name="System Bold" size="24"/>
+                </font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="adminLabel" text="Admin: " styleClass="subtitle">
+                <font>
+                    <Font size="14"/>
+                </font>
+            </Label>
+            <Button text="🔄 Refresh" onAction="#handleRefresh" styleClass="btn-secondary" style="-fx-margin-right: 10;"/>
+            <Button text="Logout" onAction="#handleLogout" styleClass="btn-secondary"/>
+        </HBox>
+    </top>
+
+    <!-- Center Content -->
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="30" right="40" bottom="30" left="40"/>
+            </padding>
+
+            <!-- Title Section -->
+            <VBox alignment="CENTER" spacing="10">
+                <Label fx:id="countryLabel" text="Managing Applications for: " styleClass="title-large">
+                    <font>
+                        <Font name="System Bold" size="28"/>
+                    </font>
+                </Label>
+                <Label text="Review and manage visa applications" styleClass="subtitle">
+                    <font>
+                        <Font size="16"/>
+                    </font>
+                </Label>
+            </VBox>
+
+            <!-- Statistics Cards -->
+            <HBox spacing="20" alignment="CENTER">
+                <VBox styleClass="card" alignment="CENTER" spacing="10" prefWidth="200">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                    <Label text="📋" style="-fx-font-size: 36px;"/>
+                    <Label text="Total Applications" styleClass="field-label">
+                        <font>
+                            <Font size="12"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="totalApplicationsLabel" text="0" styleClass="title-large">
+                        <font>
+                            <Font name="System Bold" size="24"/>
+                        </font>
+                    </Label>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="10" prefWidth="200">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                    <Label text="⏳" style="-fx-font-size: 36px;"/>
+                    <Label text="Processing" styleClass="field-label">
+                        <font>
+                            <Font size="12"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="processingLabel" text="0" styleClass="title-large">
+                        <font>
+                            <Font name="System Bold" size="24"/>
+                        </font>
+                    </Label>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="10" prefWidth="200">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                    <Label text="✅" style="-fx-font-size: 36px;"/>
+                    <Label text="Approved" styleClass="field-label">
+                        <font>
+                            <Font size="12"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="approvedLabel" text="0" styleClass="title-large">
+                        <font>
+                            <Font name="System Bold" size="24"/>
+                        </font>
+                    </Label>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="10" prefWidth="200">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                    <Label text="❌" style="-fx-font-size: 36px;"/>
+                    <Label text="Rejected" styleClass="field-label">
+                        <font>
+                            <Font size="12"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="rejectedLabel" text="0" styleClass="title-large">
+                        <font>
+                            <Font name="System Bold" size="24"/>
+                        </font>
+                    </Label>
+                </VBox>
+            </HBox>
+
+            <!-- Filter Section -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Label text="Filter by Status:" styleClass="field-label">
+                    <font>
+                        <Font name="System Bold" size="13"/>
+                    </font>
+                </Label>
+                <ComboBox fx:id="statusFilter" promptText="All Applications" prefWidth="200"/>
+                <Button text="Refresh" onAction="#handleRefresh" styleClass="btn-secondary"/>
+            </HBox>
+
+            <!-- Applications Table -->
+            <TableView fx:id="applicationsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="applicationIdColumn" text="Application ID" prefWidth="150"/>
+                    <TableColumn fx:id="applicantNameColumn" text="Applicant Name" prefWidth="200"/>
+                    <TableColumn fx:id="visaTypeColumn" text="Visa Type" prefWidth="120"/>
+                    <TableColumn fx:id="nationalityColumn" text="Nationality" prefWidth="150"/>
+                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="120"/>
+                    <TableColumn fx:id="dateColumn" text="Applied Date" prefWidth="150"/>
+                    <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="180"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+</BorderPane>

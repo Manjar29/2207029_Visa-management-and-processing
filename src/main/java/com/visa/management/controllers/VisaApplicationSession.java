@@ -9,6 +9,14 @@ public class VisaApplicationSession {
     private String selectedCountry;
     private String selectedVisaType;
     
+    // Admin session data
+    private String adminUsername;
+    private String adminCountry;
+    
+    // Applicant session data
+    private String applicantId;
+    private String applicantName;
+    
     private VisaApplicationSession() {}
     
     public static VisaApplicationSession getInstance() {
@@ -34,8 +42,45 @@ public class VisaApplicationSession {
         this.selectedVisaType = selectedVisaType;
     }
     
+    public String getAdminUsername() {
+        return adminUsername;
+    }
+    
+    public void setAdminUsername(String adminUsername) {
+        this.adminUsername = adminUsername;
+    }
+    
+    public String getAdminCountry() {
+        return adminCountry;
+    }
+    
+    public void setAdminCountry(String adminCountry) {
+        this.adminCountry = adminCountry;
+    }
+    
+    public String getApplicantId() {
+        return applicantId;
+    }
+    
+    public void setApplicantId(String applicantId) {
+        this.applicantId = applicantId;
+    }
+    
+    public String getApplicantName() {
+        return applicantName;
+    }
+    
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+    
     public void clear() {
         selectedCountry = null;
         selectedVisaType = null;
+        adminUsername = null;
+        adminCountry = null;
+        applicantId = null;
+        applicantName = null;
     }
 }
+

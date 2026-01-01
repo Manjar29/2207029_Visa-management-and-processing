@@ -1,8 +1,8 @@
 com\visa\management\controllers\VisaApplicationSession.class
-com\visa\management\controllers\SelectVisaTypeController.class
 com\visa\management\VisaManagementApp.class
 com\visa\management\controllers\HomeController.class
 com\visa\management\controllers\CheckStatusController.class
 com\visa\management\controllers\SelectCountryController.class
 com\visa\management\controllers\ApplyVisaController.class
+com\visa\management\controllers\SelectVisaTypeController.class
 com\visa\management\controllers\LoginController.class

@@ -17,7 +17,7 @@ public class HomeController {
 
     @FXML
     private void handleLogin() {
-        // Non-functional - UI design only
+        VisaManagementApp.changeScene("/fxml/login.fxml", "Login - Visa Management System");
     }
 
     @FXML

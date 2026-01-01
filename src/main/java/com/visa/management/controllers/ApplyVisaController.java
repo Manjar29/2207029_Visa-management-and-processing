@@ -1,6 +1,7 @@
 package com.visa.management.controllers;
 
 import com.visa.management.VisaManagementApp;
+import com.visa.management.database.DatabaseManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -131,14 +132,40 @@ public class ApplyVisaController {
             return;
         }
 
-        // Generate application ID
-        String appId = "VSA-2025-" + (int)(Math.random() * 10000);
+        // Save to database and get credentials
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        DatabaseManager.ApplicationCredentials credentials = dbManager.createApplicant(
+            firstNameField.getText().trim(),
+            lastNameField.getText().trim(),
+            nationalIdField.getText().trim(),
+            nationalityCombo.getValue(),
+            passportField.getText().trim(),
+            emailField.getText().trim(),
+            phoneField.getText().trim(),
+            addressArea.getText().trim(),
+            country,
+            visaType
+        );
         
-        // Show success message
-        showAlert("Application Submitted", 
-                  "Your visa application has been submitted successfully!\n\n" +
-                  "Application ID: " + appId + "\n\n" +
-                  "You will receive user ID in your phone number.", 
+        if (credentials == null) {
+            showAlert("Error", "Failed to submit application. Please try again.", Alert.AlertType.ERROR);
+            return;
+        }
+        
+        // Save additional visa-specific details
+        saveVisaSpecificDetails(credentials.getApplicationId(), visaType);
+        
+        // Show success message with credentials
+        showAlert("Application Submitted Successfully!", 
+                  "Your visa application has been submitted!\n\n" +
+                  "═══════════════════════════════\n" +
+                  "Application ID: " + credentials.getApplicationId() + "\n" +
+                  "Password: " + credentials.getPassword() + "\n" +
+                  "═══════════════════════════════\n\n" +
+                  "⚠️ IMPORTANT: Please save these credentials!\n" +
+                  "You can use them to login and check your application status.\n\n" +
+                  "Status: Processing\n" +
+                  "Email: " + emailField.getText(), 
                   Alert.AlertType.INFORMATION);
         
         clearForm();
@@ -146,6 +173,44 @@ public class ApplyVisaController {
         // Clear session and return to home
         VisaApplicationSession.getInstance().clear();
         VisaManagementApp.changeScene("/fxml/home.fxml", "Visa Management & Processing System");
+    }
+    
+    private void saveVisaSpecificDetails(String applicationId, String visaType) {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        
+        // Save common fields
+        dbManager.saveVisaDetail(applicationId, "travel_history", travelHistoryCombo.getValue());
+        dbManager.saveVisaDetail(applicationId, "previous_travel", previousTravelArea.getText());
+        
+        // Save visa-type specific fields
+        if (visaType.contains("Tourist")) {
+            dbManager.saveVisaDetail(applicationId, "tourist_places", touristPlaceArea.getText());
+            dbManager.saveVisaDetail(applicationId, "hotel_pnr", hotelPnrField.getText());
+            dbManager.saveVisaDetail(applicationId, "flight_no", flightNoField.getText());
+            dbManager.saveVisaDetail(applicationId, "journey_date", journeyDatePicker.getValue() != null ? journeyDatePicker.getValue().toString() : "");
+            dbManager.saveVisaDetail(applicationId, "bank_name", bankNameField.getText());
+            dbManager.saveVisaDetail(applicationId, "account_number", accountNumberField.getText());
+            dbManager.saveVisaDetail(applicationId, "references", referencesArea.getText());
+            dbManager.saveVisaDetail(applicationId, "family_members", familyMembersArea.getText());
+        } else if (visaType.contains("Medical")) {
+            dbManager.saveVisaDetail(applicationId, "diagnosis", diagnosisArea.getText());
+            dbManager.saveVisaDetail(applicationId, "hospital_details", hospitalDetailsArea.getText());
+            dbManager.saveVisaDetail(applicationId, "doctor_name", doctorNameField.getText());
+            dbManager.saveVisaDetail(applicationId, "appointment_date", appointmentDatePicker.getValue() != null ? appointmentDatePicker.getValue().toString() : "");
+        } else if (visaType.contains("Student")) {
+            dbManager.saveVisaDetail(applicationId, "university", universityField.getText());
+            dbManager.saveVisaDetail(applicationId, "program", programField.getText());
+            dbManager.saveVisaDetail(applicationId, "program_duration", programDurationField.getText());
+            dbManager.saveVisaDetail(applicationId, "program_start_date", programStartDatePicker.getValue() != null ? programStartDatePicker.getValue().toString() : "");
+            dbManager.saveVisaDetail(applicationId, "education_details", educationDetailsArea.getText());
+        } else if (visaType.contains("Work")) {
+            dbManager.saveVisaDetail(applicationId, "company_name", companyNameField.getText());
+            dbManager.saveVisaDetail(applicationId, "company_address", companyAddressArea.getText());
+            dbManager.saveVisaDetail(applicationId, "job_position", jobPositionField.getText());
+            dbManager.saveVisaDetail(applicationId, "contract_duration", contractDurationField.getText());
+            dbManager.saveVisaDetail(applicationId, "employment_start_date", employmentStartDatePicker.getValue() != null ? employmentStartDatePicker.getValue().toString() : "");
+            dbManager.saveVisaDetail(applicationId, "salary", salaryField.getText());
+        }
     }
     
     private String validateCountryRules(String country, String visaType) {
@@ -340,7 +405,7 @@ public class ApplyVisaController {
             "Afghanistan", "Australia", "Bangladesh", "Bhutan", "Brazil", "Canada", 
             "China", "Egypt", "France", "Germany", "India", "Indonesia", "Iran", 
             "Iraq", "Italy", "Japan", "Malaysia", "Maldives", "Nepal", "Netherlands",
-            "New Zealand", "Nigeria", "Pakistan", "Philippines", "Qatar", "Russia",
+            "New Zealand", "Nigeria", "Philippines", "Qatar", "Russia",
             "Saudi Arabia", "Singapore", "South Africa", "South Korea", "Spain", 
             "Sri Lanka", "Thailand", "Turkey", "United Arab Emirates", "United Kingdom", 
             "United States", "Vietnam"
@@ -350,6 +415,50 @@ public class ApplyVisaController {
         travelHistoryCombo.getItems().addAll(
             "Yes - Multiple Countries", "Yes - Single Country", "No - First Time Travel"
         );
+        
+        // Disable past dates for journey date picker
+        if (journeyDatePicker != null) {
+            journeyDatePicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(java.time.LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+                }
+            });
+        }
+        
+        // Disable past dates for appointment date picker
+        if (appointmentDatePicker != null) {
+            appointmentDatePicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(java.time.LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+                }
+            });
+        }
+        
+        // Disable past dates for program start date picker
+        if (programStartDatePicker != null) {
+            programStartDatePicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(java.time.LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+                }
+            });
+        }
+        
+        // Disable past dates for employment start date picker
+        if (employmentStartDatePicker != null) {
+            employmentStartDatePicker.setDayCellFactory(picker -> new DateCell() {
+                @Override
+                public void updateItem(java.time.LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(java.time.LocalDate.now()));
+                }
+            });
+        }
 
         System.out.println("Apply Visa screen initialized successfully");
     }

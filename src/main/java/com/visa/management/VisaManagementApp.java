@@ -30,6 +30,7 @@ public class VisaManagementApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);
+        primaryStage.setMaximized(true);  // Open maximized to full screen
         primaryStage.show();
     }
 
@@ -39,13 +40,35 @@ public class VisaManagementApp extends Application {
 
     public static void changeScene(String fxmlPath, String title) {
         try {
+            boolean wasMaximized = primaryStage.isMaximized();
             FXMLLoader fxmlLoader = new FXMLLoader(VisaManagementApp.class.getResource(fxmlPath));
             Scene scene = new Scene(fxmlLoader.load());
             scene.getStylesheets().add(VisaManagementApp.class.getResource("/css/styles.css").toExternalForm());
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
+            if (wasMaximized) {
+                primaryStage.setMaximized(true);
+            }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static <T> T changeSceneWithController(String fxmlPath, String title) {
+        try {
+            boolean wasMaximized = primaryStage.isMaximized();
+            FXMLLoader fxmlLoader = new FXMLLoader(VisaManagementApp.class.getResource(fxmlPath));
+            Scene scene = new Scene(fxmlLoader.load());
+            scene.getStylesheets().add(VisaManagementApp.class.getResource("/css/styles.css").toExternalForm());
+            primaryStage.setTitle(title);
+            primaryStage.setScene(scene);
+            if (wasMaximized) {
+                primaryStage.setMaximized(true);
+            }
+            return fxmlLoader.getController();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

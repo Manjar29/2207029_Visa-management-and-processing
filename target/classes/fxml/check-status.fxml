@@ -59,18 +59,7 @@
                                 <Font name="System Bold" size="13"/>
                             </font>
                         </Label>
-                        <TextField fx:id="applicationIdField" promptText="Enter your application ID" 
-                                   styleClass="text-field" prefHeight="40"/>
-                    </VBox>
-
-                    <!-- Passport Number -->
-                    <VBox spacing="8">
-                        <Label text="Passport Number *" styleClass="field-label">
-                            <font>
-                                <Font name="System Bold" size="13"/>
-                            </font>
-                        </Label>
-                        <TextField fx:id="passportField" promptText="Enter your passport number" 
+                        <TextField fx:id="applicationIdField" promptText="Enter your application ID (e.g., VSA1234567)" 
                                    styleClass="text-field" prefHeight="40"/>
                     </VBox>
 
@@ -146,6 +135,20 @@
                             </Label>
                         </HBox>
 
+                        <!-- Country -->
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Country:" styleClass="detail-label" prefWidth="150">
+                                <font>
+                                    <Font name="System Bold" size="13"/>
+                                </font>
+                            </Label>
+                            <Label fx:id="countryLabel" text="India" styleClass="detail-value">
+                                <font>
+                                    <Font size="13"/>
+                                </font>
+                            </Label>
+                        </HBox>
+
                         <!-- Submission Date -->
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Submission Date:" styleClass="detail-label" prefWidth="150">
@@ -159,6 +162,15 @@
                                 </font>
                             </Label>
                         </HBox>
+
+                        <!-- Visa Duration (only shown when approved) -->
+                        <VBox fx:id="visaDurationBox" spacing="5" managed="false" visible="false">
+                            <Label fx:id="visaDurationLabel" text="Visa Duration: " styleClass="detail-value" style="-fx-text-fill: #4CAF50; -fx-font-weight: bold;">
+                                <font>
+                                    <Font size="14"/>
+                                </font>
+                            </Label>
+                        </VBox>
                     </VBox>
 
                     <Separator/>

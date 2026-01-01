@@ -1,8 +1,13 @@
+C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\ApplicantDashboardController.java
 C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\ApplyVisaController.java
-C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\CheckStatusController.java
 C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\VisaApplicationSession.java
 C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\LoginController.java
 C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\HomeController.java
 C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\SelectVisaTypeController.java
-C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\VisaManagementApp.java
+C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\debug\DatabaseInspector.java
+C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\ApplicationDetailsController.java
 C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\SelectCountryController.java
+C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\AdminDashboardController.java
+C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\controllers\CheckStatusController.java
+C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\VisaManagementApp.java
+C:\Users\Acer\IdeaProjects\2207029_Visa-management-and-processing\src\main\java\com\visa\management\database\DatabaseManager.java
