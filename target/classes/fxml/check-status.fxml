@@ -171,34 +171,66 @@
                                 </font>
                             </Label>
                         </VBox>
+
+                        <!-- Approved By (only shown when approved) -->
+                        <VBox fx:id="approvedByBox" spacing="5" managed="false" visible="false">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="Approved By:" styleClass="detail-label" prefWidth="150">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="approvedByLabel" text="" styleClass="detail-value" style="-fx-text-fill: #4CAF50;">
+                                    <font>
+                                        <Font size="13"/>
+                                    </font>
+                                </Label>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Approval Date (only shown when approved) -->
+                        <VBox fx:id="approvalDateBox" spacing="5" managed="false" visible="false">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="Approval Date:" styleClass="detail-label" prefWidth="150">
+                                    <font>
+                                        <Font name="System Bold" size="13"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="approvalDateLabel" text="" styleClass="detail-value" style="-fx-text-fill: #4CAF50;">
+                                    <font>
+                                        <Font size="13"/>
+                                    </font>
+                                </Label>
+                            </HBox>
+                        </VBox>
                     </VBox>
 
                     <Separator/>
 
                     <!-- Timeline -->
-                    <VBox spacing="20" styleClass="timeline">
+                    <VBox fx:id="timelineBox" spacing="20" styleClass="timeline">
                         <Label text="Application Progress" styleClass="timeline-title">
                             <font>
                                 <Font name="System Bold" size="16"/>
                             </font>
                         </Label>
 
-                        <!-- Timeline Item 1 - Completed -->
-                        <HBox spacing="15" styleClass="timeline-item-completed">
+                        <!-- Timeline Item 1 - Submitted -->
+                        <HBox fx:id="timeline1" spacing="15" styleClass="timeline-item-completed">
                             <VBox alignment="CENTER">
-                                <Label text="✓" styleClass="timeline-marker-completed">
+                                <Label fx:id="timeline1Marker" text="✓" styleClass="timeline-marker-completed">
                                     <font>
                                         <Font name="System Bold" size="16"/>
                                     </font>
                                 </Label>
                             </VBox>
                             <VBox spacing="3">
-                                <Label text="Application Submitted" styleClass="timeline-step">
+                                <Label fx:id="timeline1Title" text="Application Submitted" styleClass="timeline-step">
                                     <font>
                                         <Font name="System Bold" size="14"/>
                                     </font>
                                 </Label>
-                                <Label text="Dec 1, 2025" styleClass="timeline-date">
+                                <Label fx:id="timeline1Date" text="" styleClass="timeline-date">
                                     <font>
                                         <Font size="12"/>
                                     </font>
@@ -206,22 +238,22 @@
                             </VBox>
                         </HBox>
 
-                        <!-- Timeline Item 2 - Completed -->
-                        <HBox spacing="15" styleClass="timeline-item-completed">
+                        <!-- Timeline Item 2 - Processing -->
+                        <HBox fx:id="timeline2" spacing="15" styleClass="timeline-item-active">
                             <VBox alignment="CENTER">
-                                <Label text="✓" styleClass="timeline-marker-completed">
+                                <Label fx:id="timeline2Marker" text="⟳" styleClass="timeline-marker-active">
                                     <font>
                                         <Font name="System Bold" size="16"/>
                                     </font>
                                 </Label>
                             </VBox>
                             <VBox spacing="3">
-                                <Label text="Documents Verified" styleClass="timeline-step">
+                                <Label fx:id="timeline2Title" text="Under Review" styleClass="timeline-step">
                                     <font>
                                         <Font name="System Bold" size="14"/>
                                     </font>
                                 </Label>
-                                <Label text="Dec 3, 2025" styleClass="timeline-date">
+                                <Label fx:id="timeline2Date" text="In Progress" styleClass="timeline-date">
                                     <font>
                                         <Font size="12"/>
                                     </font>
@@ -229,45 +261,22 @@
                             </VBox>
                         </HBox>
 
-                        <!-- Timeline Item 3 - Active -->
-                        <HBox spacing="15" styleClass="timeline-item-active">
+                        <!-- Timeline Item 3 - Decision -->
+                        <HBox fx:id="timeline3" spacing="15" styleClass="timeline-item-pending">
                             <VBox alignment="CENTER">
-                                <Label text="⟳" styleClass="timeline-marker-active">
+                                <Label fx:id="timeline3Marker" text="○" styleClass="timeline-marker-pending">
                                     <font>
                                         <Font name="System Bold" size="16"/>
                                     </font>
                                 </Label>
                             </VBox>
                             <VBox spacing="3">
-                                <Label text="Under Review" styleClass="timeline-step">
+                                <Label fx:id="timeline3Title" text="Decision Pending" styleClass="timeline-step">
                                     <font>
                                         <Font name="System Bold" size="14"/>
                                     </font>
                                 </Label>
-                                <Label text="In Progress" styleClass="timeline-date">
-                                    <font>
-                                        <Font size="12"/>
-                                    </font>
-                                </Label>
-                            </VBox>
-                        </HBox>
-
-                        <!-- Timeline Item 4 - Pending -->
-                        <HBox spacing="15" styleClass="timeline-item-pending">
-                            <VBox alignment="CENTER">
-                                <Label text="○" styleClass="timeline-marker-pending">
-                                    <font>
-                                        <Font name="System Bold" size="16"/>
-                                    </font>
-                                </Label>
-                            </VBox>
-                            <VBox spacing="3">
-                                <Label text="Decision Pending" styleClass="timeline-step">
-                                    <font>
-                                        <Font name="System Bold" size="14"/>
-                                    </font>
-                                </Label>
-                                <Label text="Awaiting" styleClass="timeline-date">
+                                <Label fx:id="timeline3Date" text="Awaiting" styleClass="timeline-date">
                                     <font>
                                         <Font size="12"/>
                                     </font>

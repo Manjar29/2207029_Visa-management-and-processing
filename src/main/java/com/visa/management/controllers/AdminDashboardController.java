@@ -66,6 +66,7 @@ public class AdminDashboardController {
             private final HBox buttons = new HBox(5, viewBtn, approveBtn, rejectBtn);
             
             {
+                System.out.println("Creating action buttons for table cell...");
                 approveBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 11px; -fx-padding: 5 10;");
                 rejectBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 11px; -fx-padding: 5 10;");
                 viewBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 11px; -fx-padding: 5 10;");
@@ -82,8 +83,15 @@ public class AdminDashboardController {
                 });
                 
                 viewBtn.setOnAction(event -> {
-                    ApplicationData app = getTableView().getItems().get(getIndex());
-                    handleView(app);
+                    try {
+                        System.out.println("\n>>> VIEW BUTTON CLICKED IN TABLE <<<");
+                        ApplicationData app = getTableView().getItems().get(getIndex());
+                        System.out.println(">>> App data retrieved: " + app.getApplicationId());
+                        handleView(app);
+                    } catch (Exception e) {
+                        System.err.println("!!! ERROR IN VIEW BUTTON HANDLER !!!");
+                        e.printStackTrace();
+                    }
                 });
             }
             
@@ -94,6 +102,8 @@ public class AdminDashboardController {
                     setGraphic(null);
                 } else {
                     ApplicationData app = getTableView().getItems().get(getIndex());
+                    System.out.println("Rendering buttons for: " + app.getApplicationId() + " (Status: " + app.getStatus() + ")");
+                    
                     if ("Approved".equals(app.getStatus()) || "Rejected".equals(app.getStatus())) {
                         approveBtn.setDisable(true);
                         rejectBtn.setDisable(true);
@@ -102,6 +112,7 @@ public class AdminDashboardController {
                         rejectBtn.setDisable(false);
                     }
                     setGraphic(buttons);
+                    System.out.println("Buttons rendered and visible");
                 }
             }
         });
@@ -357,16 +368,31 @@ public class AdminDashboardController {
         }
     }
     
-    @FXML
     private void handleView(ApplicationData app) {
-        // Navigate to application details page
-        ApplicationDetailsController controller = VisaManagementApp.changeSceneWithController(
-            "/fxml/application-details.fxml", 
-            "Application Details - " + app.getApplicationId()
-        );
+        System.out.println("===========================================");
+        System.out.println("VIEW BUTTON CLICKED");
+        System.out.println("Application ID: " + app.getApplicationId());
+        System.out.println("===========================================");
         
-        if (controller != null) {
-            controller.setApplicationId(app.getApplicationId());
+        try {
+            // Navigate to application details page
+            ApplicationDetailsController controller = VisaManagementApp.changeSceneWithController(
+                "/fxml/application-details.fxml", 
+                "Application Details - " + app.getApplicationId()
+            );
+            
+            System.out.println("Controller retrieved: " + (controller != null ? "SUCCESS" : "NULL"));
+            
+            if (controller != null) {
+                controller.setApplicationId(app.getApplicationId());
+                System.out.println("Application ID set on controller");
+            } else {
+                System.err.println("ERROR: Controller is null!");
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR in handleView: " + e.getMessage());
+            e.printStackTrace();
+            showError("Failed to open application details: " + e.getMessage());
         }
     }
     

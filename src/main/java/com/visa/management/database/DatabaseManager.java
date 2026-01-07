@@ -80,6 +80,17 @@ public class DatabaseManager {
                     "field_value TEXT, " +
                     "FOREIGN KEY (application_id) REFERENCES applicants(application_id))");
             
+            // Create documents table for uploaded files
+            stmt.execute("CREATE TABLE IF NOT EXISTS documents (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "application_id TEXT NOT NULL, " +
+                    "filename TEXT NOT NULL, " +
+                    "file_path TEXT NOT NULL, " +
+                    "file_type TEXT, " +
+                    "file_size INTEGER, " +
+                    "uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                    "FOREIGN KEY (application_id) REFERENCES applicants(application_id))");
+            
             // Insert default admin accounts (one for each country) if not exists
             insertDefaultAdmins();
             
@@ -458,5 +469,92 @@ public class DatabaseManager {
         
         public String getApplicationId() { return applicationId; }
         public String getPassword() { return password; }
+    }
+    
+    public static class DocumentInfo {
+        private final int id;
+        private final String applicationId;
+        private final String filename;
+        private final String filePath;
+        private final String fileType;
+        private final long fileSize;
+        private final String uploadedAt;
+        
+        public DocumentInfo(int id, String applicationId, String filename, String filePath, 
+                          String fileType, long fileSize, String uploadedAt) {
+            this.id = id;
+            this.applicationId = applicationId;
+            this.filename = filename;
+            this.filePath = filePath;
+            this.fileType = fileType;
+            this.fileSize = fileSize;
+            this.uploadedAt = uploadedAt;
+        }
+        
+        public int getId() { return id; }
+        public String getApplicationId() { return applicationId; }
+        public String getFilename() { return filename; }
+        public String getFilePath() { return filePath; }
+        public String getFileType() { return fileType; }
+        public long getFileSize() { return fileSize; }
+        public String getUploadedAt() { return uploadedAt; }
+    }
+    
+    // Save document information
+    public boolean saveDocument(String applicationId, String filename, String filePath, 
+                                String fileType, long fileSize) {
+        String sql = "INSERT INTO documents (application_id, filename, file_path, file_type, file_size) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, applicationId);
+            pstmt.setString(2, filename);
+            pstmt.setString(3, filePath);
+            pstmt.setString(4, fileType);
+            pstmt.setLong(5, fileSize);
+            
+            int affected = pstmt.executeUpdate();
+            System.out.println("Document saved: " + filename + " for application " + applicationId);
+            return affected > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error saving document: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Get all documents for an application
+    public java.util.List<DocumentInfo> getDocuments(String applicationId) {
+        java.util.List<DocumentInfo> documents = new java.util.ArrayList<>();
+        String sql = "SELECT id, application_id, filename, file_path, file_type, file_size, uploaded_at " +
+                    "FROM documents WHERE application_id = ? ORDER BY uploaded_at DESC";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, applicationId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                documents.add(new DocumentInfo(
+                    rs.getInt("id"),
+                    rs.getString("application_id"),
+                    rs.getString("filename"),
+                    rs.getString("file_path"),
+                    rs.getString("file_type"),
+                    rs.getLong("file_size"),
+                    rs.getString("uploaded_at")
+                ));
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error retrieving documents: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return documents;
     }
 }

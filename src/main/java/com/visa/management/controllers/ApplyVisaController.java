@@ -155,6 +155,9 @@ public class ApplyVisaController {
         // Save additional visa-specific details
         saveVisaSpecificDetails(credentials.getApplicationId(), visaType);
         
+        // Save uploaded documents
+        saveDocuments(credentials.getApplicationId());
+        
         // Show success message with credentials
         showAlert("Application Submitted Successfully!", 
                   "Your visa application has been submitted!\n\n" +
@@ -211,6 +214,60 @@ public class ApplyVisaController {
             dbManager.saveVisaDetail(applicationId, "employment_start_date", employmentStartDatePicker.getValue() != null ? employmentStartDatePicker.getValue().toString() : "");
             dbManager.saveVisaDetail(applicationId, "salary", salaryField.getText());
         }
+    }
+    
+    private void saveDocuments(String applicationId) {
+        if (selectedFiles == null || selectedFiles.isEmpty()) {
+            System.out.println("No documents to save for application " + applicationId);
+            return;
+        }
+        
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        
+        // Create documents directory if it doesn't exist
+        java.io.File documentsDir = new java.io.File("documents");
+        if (!documentsDir.exists()) {
+            documentsDir.mkdir();
+        }
+        
+        // Create application-specific folder
+        java.io.File appDocDir = new java.io.File(documentsDir, applicationId);
+        if (!appDocDir.exists()) {
+            appDocDir.mkdir();
+        }
+        
+        // Copy and save each document
+        for (java.io.File file : selectedFiles) {
+            try {
+                // Copy file to application folder
+                java.io.File destFile = new java.io.File(appDocDir, file.getName());
+                java.nio.file.Files.copy(file.toPath(), destFile.toPath(), 
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                
+                // Get file info
+                String filename = file.getName();
+                String filePath = destFile.getAbsolutePath();
+                String fileType = getFileExtension(filename);
+                long fileSize = file.length();
+                
+                // Save to database
+                dbManager.saveDocument(applicationId, filename, filePath, fileType, fileSize);
+                
+                System.out.println("Saved document: " + filename + " (" + fileSize + " bytes)");
+                
+            } catch (java.io.IOException e) {
+                System.err.println("Error saving document " + file.getName() + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private String getFileExtension(String filename) {
+        int lastDot = filename.lastIndexOf('.');
+        if (lastDot > 0 && lastDot < filename.length() - 1) {
+            return filename.substring(lastDot + 1).toLowerCase();
+        }
+        return "unknown";
     }
     
     private String validateCountryRules(String country, String visaType) {
