@@ -5,12 +5,17 @@ import com.visa.management.database.DatabaseManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class ApplicantDashboardController {
     
@@ -28,6 +33,7 @@ public class ApplicantDashboardController {
     @FXML private Label approvedByLabel;
     @FXML private Label approvalDateLabel;
     @FXML private VBox visaConditionsBox;
+    @FXML private Button messageButton;
     
     private String applicantId;
     private String applicantName;
@@ -46,6 +52,8 @@ public class ApplicantDashboardController {
         
         // Load application data
         loadApplicationData();
+        
+        // Update message button visibility based on status (will be set after loadApplicationData)
     }
     
     private void loadApplicationData() {
@@ -142,6 +150,9 @@ public class ApplicantDashboardController {
                     }
                 }
                 
+                // Update message button visibility
+                updateMessageButtonVisibility();
+                
                 System.out.println("╚════════════════════════════════════════════════════════════╝");
             } else {
                 System.err.println("✗ Application not found in database!");
@@ -161,6 +172,57 @@ public class ApplicantDashboardController {
         System.out.println("Applicant dashboard refresh triggered for: " + applicantId);
         loadApplicationData();
         System.out.println("Applicant dashboard refresh completed. Current status: " + currentStatus);
+    }
+    
+    private void updateMessageButtonVisibility() {
+        // Only show message button when status is "Processing"
+        if (messageButton != null) {
+            boolean isProcessing = "Processing".equals(currentStatus);
+            messageButton.setVisible(isProcessing);
+            messageButton.setManaged(isProcessing);
+            System.out.println("Message button visibility: " + (isProcessing ? "VISIBLE" : "HIDDEN") + " (Status: " + currentStatus + ")");
+        }
+    }
+    
+    @FXML
+    private void handleSendMessage() {
+        Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
+        dialog.setTitle("Send Message to Admin");
+        dialog.setHeaderText("Contact Admin for " + countryLabel.getText());
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        
+        Label infoLabel = new Label("Send a message to the admin regarding your application:");
+        infoLabel.setWrapText(true);
+        
+        TextArea messageArea = new TextArea();
+        messageArea.setPromptText("Enter your message here...");
+        messageArea.setPrefRowCount(6);
+        messageArea.setWrapText(true);
+        
+        content.getChildren().addAll(infoLabel, messageArea);
+        dialog.getDialogPane().setContent(content);
+        
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            String message = messageArea.getText().trim();
+            if (message.isEmpty()) {
+                showError("Message cannot be empty");
+                return;
+            }
+            
+            DatabaseManager dbManager = DatabaseManager.getInstance();
+            if (dbManager.sendApplicantMessage(applicantId, message)) {
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Success");
+                successAlert.setHeaderText("Message Sent");
+                successAlert.setContentText("Your message has been sent to the admin successfully.\n\nYou will be notified once the admin responds.");
+                successAlert.showAndWait();
+            } else {
+                showError("Failed to send message. Please try again.");
+            }
+        }
     }
     
     @FXML

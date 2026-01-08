@@ -11,12 +11,15 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.scene.layout.Priority;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.List;
 
 public class AdminDashboardController {
     
@@ -319,52 +322,140 @@ public class AdminDashboardController {
     
     @FXML
     private void handleReject(ApplicationData app) {
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Reject Application");
-        confirmAlert.setHeaderText("Reject " + app.getApplicationId() + "?");
-        confirmAlert.setContentText("Are you sure you want to reject this application?");
+        // Create custom dialog with rejection reason and ban duration
+        Dialog<ButtonType> rejectDialog = new Dialog<>();
+        rejectDialog.setTitle("Reject Application");
+        rejectDialog.setHeaderText("Reject " + app.getApplicationId());
         
-        Optional<ButtonType> result = confirmAlert.showAndWait();
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(500);
+        
+        Label reasonLabel = new Label("Rejection Reason:");
+        TextArea reasonArea = new TextArea();
+        reasonArea.setPromptText("Enter the reason for rejection...");
+        reasonArea.setPrefRowCount(4);
+        reasonArea.setWrapText(true);
+        
+        Label banLabel = new Label("Ban Duration:");
+        ComboBox<String> banDurationCombo = new ComboBox<>();
+        banDurationCombo.getItems().addAll(
+            "No Ban",
+            "1 Month",
+            "3 Months", 
+            "6 Months",
+            "1 Year",
+            "2 Years",
+            "5 Years",
+            "Permanent"
+        );
+        banDurationCombo.setValue("No Ban");
+        
+        Label warningLabel = new Label("⚠️ Ban will prevent re-application based on NID, Passport, and Country");
+        warningLabel.setStyle("-fx-text-fill: #f44336; -fx-font-size: 10px;");
+        warningLabel.setWrapText(true);
+        
+        content.getChildren().addAll(reasonLabel, reasonArea, banLabel, banDurationCombo, warningLabel);
+        rejectDialog.getDialogPane().setContent(content);
+        rejectDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        
+        Optional<ButtonType> result = rejectDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            String reason = reasonArea.getText().trim();
+            if (reason.isEmpty()) {
+                showError("Rejection reason cannot be empty");
+                return;
+            }
+            
+            String banDuration = banDurationCombo.getValue();
+            int banMonths = 0;
+            
+            switch (banDuration) {
+                case "1 Month": banMonths = 1; break;
+                case "3 Months": banMonths = 3; break;
+                case "6 Months": banMonths = 6; break;
+                case "1 Year": banMonths = 12; break;
+                case "2 Years": banMonths = 24; break;
+                case "5 Years": banMonths = 60; break;
+                case "Permanent": banMonths = 999; break;
+                default: banMonths = 0;
+            }
+            
             System.out.println("\n=================================================");
             System.out.println("⛔ REJECTING APPLICATION");
             System.out.println("  - Application ID: " + app.getApplicationId());
             System.out.println("  - Admin: " + adminUsername);
+            System.out.println("  - Reason: " + reason);
+            System.out.println("  - Ban Duration: " + banDuration + " (" + banMonths + " months)");
             System.out.println("=================================================");
             
-            // Update database
+            // Get applicant details for rejection history
             DatabaseManager dbManager = DatabaseManager.getInstance();
-            boolean updateSuccess = dbManager.updateApplicationStatus(app.getApplicationId(), "Rejected", null, adminUsername);
             
-            if (!updateSuccess) {
-                System.err.println("✗ DATABASE UPDATE FAILED - NOT REFRESHING UI");
-                System.err.println("Check console output above for detailed error information");
-                showError("Failed to update application status!\n\n" +
-                         "Application ID: " + app.getApplicationId() + "\n" +
-                         "Check console for details.");
-                return;
-            }
-            
-            System.out.println("\n🔄 REFRESHING UI...");
-            
-            // Use Platform.runLater to ensure UI update happens on JavaFX thread
-            Platform.runLater(() -> {
-                // Reload data from database (setAll in loadApplications clears automatically)
-                loadApplications();
-                updateStatistics();
+            try (Connection conn = dbManager.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT national_id, passport, country FROM applicants WHERE application_id = ?")) {
                 
-                // Force complete table refresh including all columns
-                applicationsTable.refresh();
-                for (int i = 0; i < applicationsTable.getColumns().size(); i++) {
-                    applicationsTable.getColumns().get(i).setVisible(false);
-                    applicationsTable.getColumns().get(i).setVisible(true);
+                stmt.setString(1, app.getApplicationId());
+                ResultSet rs = stmt.executeQuery();
+                
+                if (rs.next()) {
+                    String nationalId = rs.getString("national_id");
+                    String passport = rs.getString("passport");
+                    String country = rs.getString("country");
+                    
+                    // Update application status
+                    boolean updateSuccess = dbManager.updateApplicationStatus(app.getApplicationId(), "Rejected", null, adminUsername);
+                    
+                    if (!updateSuccess) {
+                        showError("Failed to update application status");
+                        return;
+                    }
+                    
+                    // Add to rejection history
+                    if (banMonths > 0) {
+                        boolean historyAdded = dbManager.addRejectionHistory(
+                            app.getApplicationId(), 
+                            nationalId, 
+                            passport, 
+                            country, 
+                            reason, 
+                            banMonths, 
+                            adminUsername
+                        );
+                        
+                        if (!historyAdded) {
+                            System.err.println("⚠️ Failed to add rejection history, but application was rejected");
+                        }
+                    }
+                    
+                    System.out.println("\n🔄 REFRESHING UI...");
+                    
+                    Platform.runLater(() -> {
+                        loadApplications();
+                        updateStatistics();
+                        applicationsTable.refresh();
+                        for (int i = 0; i < applicationsTable.getColumns().size(); i++) {
+                            applicationsTable.getColumns().get(i).setVisible(false);
+                            applicationsTable.getColumns().get(i).setVisible(true);
+                        }
+                        
+                        System.out.println("✓ UI REFRESH COMPLETED");
+                        System.out.println("=================================================\n");
+                        
+                        String message = "Application rejected.\n\nReason: " + reason;
+                        if (banMonths > 0) {
+                            message += "\n\nBan Duration: " + banDuration;
+                            message += "\nApplicant cannot reapply with same NID/Passport to " + country;
+                        }
+                        showSuccess(message);
+                    });
                 }
-                
-                System.out.println("✓ UI REFRESH COMPLETED");
-                System.out.println("=================================================\n");
-                
-                showSuccess("Application rejected.");
-            });
+            } catch (SQLException e) {
+                System.err.println("✗ DATABASE ERROR: " + e.getMessage());
+                e.printStackTrace();
+                showError("Failed to reject application: " + e.getMessage());
+            }
         }
     }
     
@@ -397,6 +488,215 @@ public class AdminDashboardController {
     }
     
     @FXML
+    private void handleViewMessages() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Applicant Messages - " + adminCountry);
+        dialog.setHeaderText("Messages from applicants in " + adminCountry);
+        
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefSize(800, 600);
+        
+        // Get messages from database
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        List<DatabaseManager.ApplicantMessage> messages = dbManager.getAllMessagesForCountry(adminCountry);
+        
+        if (messages.isEmpty()) {
+            Label noMessages = new Label("No messages yet.");
+            noMessages.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
+            content.getChildren().add(noMessages);
+        } else {
+            // Create table for messages
+            TableView<DatabaseManager.ApplicantMessage> messageTable = new TableView<>();
+            messageTable.setPrefHeight(400);
+            
+            TableColumn<DatabaseManager.ApplicantMessage, String> appIdCol = new TableColumn<>("Application ID");
+            appIdCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getApplicationId()));
+            appIdCol.setPrefWidth(150);
+            
+            TableColumn<DatabaseManager.ApplicantMessage, String> messageCol = new TableColumn<>("Message");
+            messageCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getMessage()));
+            messageCol.setPrefWidth(350);
+            
+            TableColumn<DatabaseManager.ApplicantMessage, String> statusCol = new TableColumn<>("Status");
+            statusCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus()));
+            statusCol.setPrefWidth(80);
+            
+            TableColumn<DatabaseManager.ApplicantMessage, String> dateCol = new TableColumn<>("Date");
+            dateCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCreatedAt()));
+            dateCol.setPrefWidth(150);
+            
+            messageTable.getColumns().addAll(appIdCol, messageCol, statusCol, dateCol);
+            messageTable.setItems(FXCollections.observableArrayList(messages));
+            
+            // Buttons for message actions
+            HBox buttonBox = new HBox(10);
+            buttonBox.setAlignment(Pos.CENTER);
+            
+            Button viewButton = new Button("View Full Message");
+            viewButton.setOnAction(e -> {
+                DatabaseManager.ApplicantMessage selected = messageTable.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    showFullMessage(selected);
+                } else {
+                    showAlert("No Selection", "Please select a message to view", Alert.AlertType.WARNING);
+                }
+            });
+            
+            Button markReadButton = new Button("Mark as Read");
+            markReadButton.setOnAction(e -> {
+                DatabaseManager.ApplicantMessage selected = messageTable.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    if (dbManager.markMessageAsRead(selected.getId())) {
+                        selected.setStatus("READ");
+                        messageTable.refresh();
+                        showAlert("Success", "Message marked as read", Alert.AlertType.INFORMATION);
+                    }
+                } else {
+                    showAlert("No Selection", "Please select a message", Alert.AlertType.WARNING);
+                }
+            });
+            
+            Button historyButton = new Button("View Applicant History");
+            historyButton.setOnAction(e -> {
+                DatabaseManager.ApplicantMessage selected = messageTable.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    showApplicantHistory(selected.getApplicationId());
+                } else {
+                    showAlert("No Selection", "Please select a message", Alert.AlertType.WARNING);
+                }
+            });
+            
+            buttonBox.getChildren().addAll(viewButton, markReadButton, historyButton);
+            content.getChildren().addAll(messageTable, buttonBox);
+        }
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+    }
+    
+    private void showFullMessage(DatabaseManager.ApplicantMessage message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Message Details");
+        alert.setHeaderText("From Application: " + message.getApplicationId());
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(10));
+        
+        Label dateLabel = new Label("Date: " + message.getCreatedAt());
+        dateLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: gray;");
+        
+        Label messageLabel = new Label("Message:");
+        messageLabel.setStyle("-fx-font-weight: bold;");
+        
+        TextArea messageArea = new TextArea(message.getMessage());
+        messageArea.setWrapText(true);
+        messageArea.setEditable(false);
+        messageArea.setPrefRowCount(6);
+        
+        content.getChildren().addAll(dateLabel, messageLabel, messageArea);
+        
+        if (message.getAdminReply() != null && !message.getAdminReply().isEmpty()) {
+            Label replyLabel = new Label("Admin Reply:");
+            replyLabel.setStyle("-fx-font-weight: bold;");
+            
+            TextArea replyArea = new TextArea(message.getAdminReply());
+            replyArea.setWrapText(true);
+            replyArea.setEditable(false);
+            replyArea.setPrefRowCount(4);
+            
+            content.getChildren().addAll(replyLabel, replyArea);
+        }
+        
+        alert.getDialogPane().setContent(content);
+        alert.showAndWait();
+    }
+    
+    private void showApplicantHistory(String applicationId) {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                 "SELECT national_id, passport FROM applicants WHERE application_id = ?")) {
+            
+            stmt.setString(1, applicationId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                String nationalId = rs.getString("national_id");
+                String passport = rs.getString("passport");
+                
+                showTravelHistory(nationalId, passport);
+            } else {
+                showError("Application not found");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showError("Failed to retrieve applicant details: " + e.getMessage());
+        }
+    }
+    
+    private void showTravelHistory(String nationalId, String passport) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Travel History");
+        dialog.setHeaderText("Complete travel history for NID: " + nationalId + " | Passport: " + passport);
+        
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefSize(900, 500);
+        
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        List<DatabaseManager.TravelHistory> history = dbManager.getTravelHistory(nationalId, passport);
+        
+        if (history.isEmpty()) {
+            Label noHistory = new Label("No travel history found.");
+            noHistory.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
+            content.getChildren().add(noHistory);
+        } else {
+            TableView<DatabaseManager.TravelHistory> historyTable = new TableView<>();
+            historyTable.setPrefHeight(400);
+            
+            TableColumn<DatabaseManager.TravelHistory, String> appIdCol = new TableColumn<>("App ID");
+            appIdCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getApplicationId()));
+            appIdCol.setPrefWidth(120);
+            
+            TableColumn<DatabaseManager.TravelHistory, String> countryCol = new TableColumn<>("Country");
+            countryCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCountry()));
+            countryCol.setPrefWidth(100);
+            
+            TableColumn<DatabaseManager.TravelHistory, String> visaTypeCol = new TableColumn<>("Visa Type");
+            visaTypeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getVisaType()));
+            visaTypeCol.setPrefWidth(120);
+            
+            TableColumn<DatabaseManager.TravelHistory, String> statusCol = new TableColumn<>("Status");
+            statusCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus()));
+            statusCol.setPrefWidth(100);
+            
+            TableColumn<DatabaseManager.TravelHistory, String> dateCol = new TableColumn<>("Date");
+            dateCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getApplicationDate()));
+            dateCol.setPrefWidth(150);
+            
+            TableColumn<DatabaseManager.TravelHistory, String> rejectionCol = new TableColumn<>("Rejection Reason");
+            rejectionCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getRejectionReason() != null ? data.getValue().getRejectionReason() : ""));
+            rejectionCol.setPrefWidth(200);
+            
+            TableColumn<DatabaseManager.TravelHistory, String> banCol = new TableColumn<>("Ban Until");
+            banCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getBanUntilDate() != null ? data.getValue().getBanUntilDate() : ""));
+            banCol.setPrefWidth(110);
+            
+            historyTable.getColumns().addAll(appIdCol, countryCol, visaTypeCol, statusCol, dateCol, rejectionCol, banCol);
+            historyTable.setItems(FXCollections.observableArrayList(history));
+            
+            content.getChildren().add(historyTable);
+        }
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+    }
+    
+    @FXML
     private void handleRefresh() {
         System.out.println("Manual refresh triggered...");
         loadApplications();
@@ -416,6 +716,186 @@ public class AdminDashboardController {
         alert.setTitle("Success");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    @FXML
+    private void handleManageNotices() {
+        showNoticeManagementDialog();
+    }
+    
+    private void showNoticeManagementDialog() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Manage Notices - " + adminCountry);
+        dialog.setHeaderText("Add, Edit, or Delete notices for applicants in " + adminCountry);
+        
+        // Create main content
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefSize(700, 500);
+        
+        // Notice list
+        ListView<DatabaseManager.Notice> noticeListView = new ListView<>();
+        noticeListView.setPrefHeight(250);
+        noticeListView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(DatabaseManager.Notice notice, boolean empty) {
+                super.updateItem(notice, empty);
+                if (empty || notice == null) {
+                    setText(null);
+                } else {
+                    String icon = notice.getNoticeType().equals("RULES") ? "📋" : 
+                                 notice.getNoticeType().equals("REJECTION_REASONS") ? "⚠️" : "ℹ️";
+                    setText(icon + " " + notice.getTitle() + " [" + notice.getNoticeType() + "]");
+                }
+            }
+        });
+        
+        // Load existing notices
+        loadNotices(noticeListView);
+        
+        // Buttons for notice management
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        Button addButton = new Button("➕ Add Notice");
+        addButton.setOnAction(e -> showAddEditNoticeDialog(null, noticeListView));
+        
+        Button editButton = new Button("✏️ Edit Notice");
+        editButton.setOnAction(e -> {
+            DatabaseManager.Notice selected = noticeListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                showAddEditNoticeDialog(selected, noticeListView);
+            } else {
+                showAlert("No Selection", "Please select a notice to edit", Alert.AlertType.WARNING);
+            }
+        });
+        
+        Button deleteButton = new Button("🗑️ Delete Notice");
+        deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
+        deleteButton.setOnAction(e -> {
+            DatabaseManager.Notice selected = noticeListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmAlert.setTitle("Confirm Deletion");
+                confirmAlert.setHeaderText("Delete Notice");
+                confirmAlert.setContentText("Are you sure you want to delete this notice?\n\n" + selected.getTitle());
+                
+                Optional<ButtonType> result = confirmAlert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    DatabaseManager dbManager = DatabaseManager.getInstance();
+                    if (dbManager.deleteNotice(selected.getId())) {
+                        loadNotices(noticeListView);
+                        showAlert("Success", "Notice deleted successfully", Alert.AlertType.INFORMATION);
+                    } else {
+                        showError("Failed to delete notice");
+                    }
+                }
+            } else {
+                showAlert("No Selection", "Please select a notice to delete", Alert.AlertType.WARNING);
+            }
+        });
+        
+        buttonBox.getChildren().addAll(addButton, editButton, deleteButton);
+        
+        content.getChildren().addAll(
+            new Label("Existing Notices:"),
+            noticeListView,
+            buttonBox
+        );
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+    }
+    
+    private void loadNotices(ListView<DatabaseManager.Notice> listView) {
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        List<DatabaseManager.Notice> notices = dbManager.getNotices(adminCountry);
+        ObservableList<DatabaseManager.Notice> items = FXCollections.observableArrayList(notices);
+        listView.setItems(items);
+    }
+    
+    private void showAddEditNoticeDialog(DatabaseManager.Notice existingNotice, ListView<DatabaseManager.Notice> parentListView) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle(existingNotice == null ? "Add New Notice" : "Edit Notice");
+        dialog.setHeaderText(existingNotice == null ? "Create a new notice for " + adminCountry : "Modify the notice");
+        
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(600);
+        
+        // Title field
+        TextField titleField = new TextField();
+        titleField.setPromptText("Enter notice title");
+        if (existingNotice != null) titleField.setText(existingNotice.getTitle());
+        
+        // Notice type selector
+        ComboBox<String> typeCombo = new ComboBox<>();
+        typeCombo.getItems().addAll("RULES", "REJECTION_REASONS", "GENERAL");
+        typeCombo.setValue(existingNotice != null ? existingNotice.getNoticeType() : "GENERAL");
+        
+        // Content area
+        TextArea contentArea = new TextArea();
+        contentArea.setPromptText("Enter notice content");
+        contentArea.setPrefRowCount(10);
+        contentArea.setWrapText(true);
+        if (existingNotice != null) contentArea.setText(existingNotice.getContent());
+        
+        content.getChildren().addAll(
+            new Label("Title:"),
+            titleField,
+            new Label("Type:"),
+            typeCombo,
+            new Label("Content:"),
+            contentArea
+        );
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == ButtonType.OK) {
+                String title = titleField.getText().trim();
+                String noticeType = typeCombo.getValue();
+                String contentText = contentArea.getText().trim();
+                
+                if (title.isEmpty() || contentText.isEmpty()) {
+                    showAlert("Validation Error", "Title and content cannot be empty", Alert.AlertType.ERROR);
+                    return null;
+                }
+                
+                DatabaseManager dbManager = DatabaseManager.getInstance();
+                boolean success;
+                
+                if (existingNotice == null) {
+                    // Add new notice
+                    success = dbManager.saveNotice(adminCountry, title, contentText, noticeType, adminUsername);
+                } else {
+                    // Update existing notice
+                    success = dbManager.saveNotice(adminCountry, title, contentText, noticeType, adminUsername);
+                }
+                
+                if (success) {
+                    loadNotices(parentListView);
+                    showAlert("Success", 
+                        existingNotice == null ? "Notice added successfully" : "Notice updated successfully", 
+                        Alert.AlertType.INFORMATION);
+                } else {
+                    showError("Failed to save notice");
+                }
+            }
+            return null;
+        });
+        
+        dialog.showAndWait();
+    }
+    
+    private void showAlert(String title, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
         alert.showAndWait();
     }
     

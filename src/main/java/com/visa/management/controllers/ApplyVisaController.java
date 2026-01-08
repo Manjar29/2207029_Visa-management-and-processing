@@ -122,10 +122,30 @@ public class ApplyVisaController {
             return;
         }
         
-        // Validate country-specific rules
+        // Get application details
         String country = VisaApplicationSession.getInstance().getSelectedCountry();
         String visaType = VisaApplicationSession.getInstance().getSelectedVisaType();
+        String nationalId = nationalIdField.getText().trim();
+        String passport = passportField.getText().trim();
         
+        // Check if applicant is banned from reapplying
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        DatabaseManager.RejectionBan rejectionBan = dbManager.checkRejectionBan(nationalId, passport, country);
+        
+        if (rejectionBan.isBanned()) {
+            String banMessage = "⛔ APPLICATION REJECTED\n\n" +
+                              "You cannot apply for a visa to " + country + " at this time.\n\n" +
+                              "Reason: " + rejectionBan.getReason() + "\n\n" +
+                              "Rejection Date: " + rejectionBan.getRejectionDate() + "\n" +
+                              "Ban Until: " + rejectionBan.getBanUntilDate() + "\n\n" +
+                              "Your application is automatically rejected due to a previous rejection.\n" +
+                              "Please wait until the ban period expires before reapplying.";
+            
+            showAlert("Application Banned", banMessage, Alert.AlertType.ERROR);
+            return;
+        }
+        
+        // Validate country-specific rules
         String validationError = validateCountryRules(country, visaType);
         if (validationError != null) {
             showAlert("Application Restriction", validationError, Alert.AlertType.ERROR);
@@ -133,13 +153,12 @@ public class ApplyVisaController {
         }
 
         // Save to database and get credentials
-        DatabaseManager dbManager = DatabaseManager.getInstance();
         DatabaseManager.ApplicationCredentials credentials = dbManager.createApplicant(
             firstNameField.getText().trim(),
             lastNameField.getText().trim(),
-            nationalIdField.getText().trim(),
+            nationalId,
             nationalityCombo.getValue(),
-            passportField.getText().trim(),
+            passport,
             emailField.getText().trim(),
             phoneField.getText().trim(),
             addressArea.getText().trim(),
