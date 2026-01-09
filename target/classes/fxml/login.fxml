@@ -92,6 +92,25 @@
                     </Label>
                     <PasswordField fx:id="passwordField" promptText="Enter your password" styleClass="text-field" prefHeight="40"/>
                 </VBox>
+                
+                <!-- Applicant Credential Recovery Info -->
+                <VBox fx:id="applicantHelpBox" alignment="CENTER" spacing="5" style="-fx-background-color: #fff3cd; -fx-border-color: #ffc107; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;">
+                    <Label text="⚠️  Forgot your credentials?" styleClass="text-muted">
+                        <font>
+                            <Font name="System Bold" size="11"/>
+                        </font>
+                    </Label>
+                    <Label text="If you forget your password or Application ID, please contact" styleClass="text-muted" wrapText="true" maxWidth="350" textAlignment="CENTER">
+                        <font>
+                            <Font size="10"/>
+                        </font>
+                    </Label>
+                    <Label text="the AHC office with your passport and national ID." styleClass="text-muted" wrapText="true" maxWidth="350" textAlignment="CENTER">
+                        <font>
+                            <Font size="10"/>
+                        </font>
+                    </Label>
+                </VBox>
 
                 <!-- Login Button -->
                 <Button text="Login" onAction="#handleLogin" styleClass="btn-primary" prefWidth="370" prefHeight="45">

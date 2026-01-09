@@ -6,10 +6,13 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Alert;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.text.Font;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,6 +41,9 @@ public class ApplicationDetailsController {
     @FXML private VBox documentsBox;
     
     private String applicationId;
+    private String currentNationalId;
+    private String currentPassport;
+    private String currentNationality;
     
     public void setApplicationId(String applicationId) {
         System.out.println("╔════════════════════════════════════════════════════════════╗");
@@ -80,6 +86,11 @@ public class ApplicationDetailsController {
                 countryLabel.setText(rs.getString("country"));
                 visaTypeLabel.setText(rs.getString("visa_type"));
                 appliedDateLabel.setText(rs.getString("created_at"));
+                
+                // Store for travel history lookup
+                currentNationalId = rs.getString("national_id");
+                currentPassport = rs.getString("passport");
+                currentNationality = rs.getString("nationality");
                 
                 System.out.println("✓ Basic info loaded");
                 
@@ -311,6 +322,87 @@ public class ApplicationDetailsController {
         System.out.println("Going back to Admin Dashboard...");
         // Session should still have admin info, so just change scene
         VisaManagementApp.changeScene("/fxml/admin-dashboard.fxml", "Admin Dashboard");
+    }
+    
+    @FXML
+    @SuppressWarnings("unchecked")
+    private void handleViewTravelHistory() {
+        if (currentNationalId == null || currentPassport == null || currentNationality == null) {
+            showAlert("Error", "Cannot retrieve travel history. Application data not loaded.", Alert.AlertType.ERROR);
+            return;
+        }
+        
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        java.util.List<DatabaseManager.TravelHistory> history = dbManager.getTravelHistory(currentNationalId, currentPassport, currentNationality);
+        
+        // Create table view
+        TableView<DatabaseManager.TravelHistory> table = new TableView<>();
+        table.setPrefWidth(900);
+        table.setPrefHeight(400);
+        
+        // Create columns
+        TableColumn<DatabaseManager.TravelHistory, String>[] columns = new TableColumn[7];
+        
+        columns[0] = new TableColumn<>("Application ID");
+        columns[0].setCellValueFactory(new PropertyValueFactory<>("applicationId"));
+        columns[0].setPrefWidth(120);
+        
+        columns[1] = new TableColumn<>("Country");
+        columns[1].setCellValueFactory(new PropertyValueFactory<>("country"));
+        columns[1].setPrefWidth(100);
+        
+        columns[2] = new TableColumn<>("Visa Type");
+        columns[2].setCellValueFactory(new PropertyValueFactory<>("visaType"));
+        columns[2].setPrefWidth(120);
+        
+        columns[3] = new TableColumn<>("Status");
+        columns[3].setCellValueFactory(new PropertyValueFactory<>("status"));
+        columns[3].setPrefWidth(100);
+        
+        columns[4] = new TableColumn<>("Applied Date");
+        columns[4].setCellValueFactory(new PropertyValueFactory<>("appliedDate"));
+        columns[4].setPrefWidth(150);
+        
+        columns[5] = new TableColumn<>("Rejection Reason");
+        columns[5].setCellValueFactory(new PropertyValueFactory<>("rejectionReason"));
+        columns[5].setPrefWidth(200);
+        
+        columns[6] = new TableColumn<>("Ban Until");
+        columns[6].setCellValueFactory(new PropertyValueFactory<>("banUntil"));
+        columns[6].setPrefWidth(120);
+        
+        table.getColumns().addAll(columns);
+        
+        // Add data
+        table.getItems().addAll(history);
+        
+        // Create dialog
+        Stage dialog = new Stage();
+        dialog.setTitle("Complete Travel History - " + currentNationalId);
+        
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(20));
+        layout.setStyle("-fx-background-color: white;");
+        
+        Label titleLabel = new Label("🌍 Complete Visa Application History (All Countries)");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1976D2;");
+        
+        Label infoLabel = new Label("Showing all visa applications | Nationality: " + currentNationality + " | NID: " + currentNationalId + " | Passport: " + currentPassport);
+        infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
+        
+        if (history.isEmpty()) {
+            Label noHistoryLabel = new Label("No previous visa applications found.");
+            noHistoryLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #999; -fx-padding: 20;");
+            layout.getChildren().addAll(titleLabel, infoLabel, noHistoryLabel);
+        } else {
+            layout.getChildren().addAll(titleLabel, infoLabel, table);
+        }
+        
+        Scene scene = new Scene(layout);
+        dialog.setScene(scene);
+        dialog.setMinWidth(920);
+        dialog.setMinHeight(500);
+        dialog.show();
     }
     
     private void showError(String message) {

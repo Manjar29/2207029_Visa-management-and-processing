@@ -368,7 +368,7 @@ public class AdminDashboardController {
             }
             
             String banDuration = banDurationCombo.getValue();
-            int banMonths = 0;
+            final int banMonths;
             
             switch (banDuration) {
                 case "1 Month": banMonths = 1; break;
@@ -392,6 +392,11 @@ public class AdminDashboardController {
             // Get applicant details for rejection history
             DatabaseManager dbManager = DatabaseManager.getInstance();
             
+            String nationalId = null;
+            String passport = null;
+            String country = null;
+            
+            // First, get applicant details and close the connection
             try (Connection conn = dbManager.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(
                      "SELECT national_id, passport, country FROM applicants WHERE application_id = ?")) {
@@ -400,62 +405,69 @@ public class AdminDashboardController {
                 ResultSet rs = stmt.executeQuery();
                 
                 if (rs.next()) {
-                    String nationalId = rs.getString("national_id");
-                    String passport = rs.getString("passport");
-                    String country = rs.getString("country");
-                    
-                    // Update application status
-                    boolean updateSuccess = dbManager.updateApplicationStatus(app.getApplicationId(), "Rejected", null, adminUsername);
-                    
-                    if (!updateSuccess) {
-                        showError("Failed to update application status");
-                        return;
-                    }
-                    
-                    // Add to rejection history
-                    if (banMonths > 0) {
-                        boolean historyAdded = dbManager.addRejectionHistory(
-                            app.getApplicationId(), 
-                            nationalId, 
-                            passport, 
-                            country, 
-                            reason, 
-                            banMonths, 
-                            adminUsername
-                        );
-                        
-                        if (!historyAdded) {
-                            System.err.println("⚠️ Failed to add rejection history, but application was rejected");
-                        }
-                    }
-                    
-                    System.out.println("\n🔄 REFRESHING UI...");
-                    
-                    Platform.runLater(() -> {
-                        loadApplications();
-                        updateStatistics();
-                        applicationsTable.refresh();
-                        for (int i = 0; i < applicationsTable.getColumns().size(); i++) {
-                            applicationsTable.getColumns().get(i).setVisible(false);
-                            applicationsTable.getColumns().get(i).setVisible(true);
-                        }
-                        
-                        System.out.println("✓ UI REFRESH COMPLETED");
-                        System.out.println("=================================================\n");
-                        
-                        String message = "Application rejected.\n\nReason: " + reason;
-                        if (banMonths > 0) {
-                            message += "\n\nBan Duration: " + banDuration;
-                            message += "\nApplicant cannot reapply with same NID/Passport to " + country;
-                        }
-                        showSuccess(message);
-                    });
+                    nationalId = rs.getString("national_id");
+                    passport = rs.getString("passport");
+                    country = rs.getString("country");
                 }
             } catch (SQLException e) {
                 System.err.println("✗ DATABASE ERROR: " + e.getMessage());
                 e.printStackTrace();
-                showError("Failed to reject application: " + e.getMessage());
+                showError("Failed to retrieve applicant details: " + e.getMessage());
+                return;
             }
+            
+            if (nationalId == null || passport == null || country == null) {
+                showError("Failed to retrieve applicant information");
+                return;
+            }
+            
+            // Now update application status with connection properly closed
+            boolean updateSuccess = dbManager.updateApplicationStatus(app.getApplicationId(), "Rejected", null, adminUsername);
+            
+            if (!updateSuccess) {
+                showError("Failed to update application status");
+                return;
+            }
+            
+            // Add to rejection history if ban duration is set
+            if (banMonths > 0) {
+                boolean historyAdded = dbManager.addRejectionHistory(
+                    app.getApplicationId(), 
+                    nationalId, 
+                    passport, 
+                    country, 
+                    reason, 
+                    banMonths, 
+                    adminUsername
+                );
+                
+                if (!historyAdded) {
+                    System.err.println("⚠️ Failed to add rejection history, but application was rejected");
+                }
+            }
+            
+            System.out.println("\n🔄 REFRESHING UI...");
+            
+            final String finalCountry = country;
+            Platform.runLater(() -> {
+                loadApplications();
+                updateStatistics();
+                applicationsTable.refresh();
+                for (int i = 0; i < applicationsTable.getColumns().size(); i++) {
+                    applicationsTable.getColumns().get(i).setVisible(false);
+                    applicationsTable.getColumns().get(i).setVisible(true);
+                }
+                
+                System.out.println("✓ UI REFRESH COMPLETED");
+                System.out.println("=================================================\n");
+                
+                String message = "Application rejected.\n\nReason: " + reason;
+                if (banMonths > 0) {
+                    message += "\n\nBan Duration: " + banDuration;
+                    message += "\nApplicant cannot reapply with same NID/Passport to " + finalCountry;
+                }
+                showSuccess(message);
+            });
         }
     }
     
@@ -489,6 +501,9 @@ public class AdminDashboardController {
     
     @FXML
     private void handleViewMessages() {
+        System.out.println("=== VIEWING MESSAGES ===");
+        System.out.println("Admin Country: " + adminCountry);
+        
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Applicant Messages - " + adminCountry);
         dialog.setHeaderText("Messages from applicants in " + adminCountry);
@@ -501,10 +516,20 @@ public class AdminDashboardController {
         DatabaseManager dbManager = DatabaseManager.getInstance();
         List<DatabaseManager.ApplicantMessage> messages = dbManager.getAllMessagesForCountry(adminCountry);
         
-        if (messages.isEmpty()) {
-            Label noMessages = new Label("No messages yet.");
-            noMessages.setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
-            content.getChildren().add(noMessages);
+        System.out.println("Messages found: " + (messages != null ? messages.size() : "null"));
+        
+        if (messages == null || messages.isEmpty()) {
+            Label noMessages = new Label("📭 No messages yet from applicants in " + adminCountry);
+            noMessages.setStyle("-fx-font-size: 16px; -fx-text-fill: gray; -fx-padding: 50;");
+            
+            Label infoLabel = new Label("Messages will appear here when applicants with 'Processing' status send messages.");
+            infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666; -fx-padding: 10;");
+            infoLabel.setWrapText(true);
+            infoLabel.setMaxWidth(600);
+            
+            VBox emptyBox = new VBox(20, noMessages, infoLabel);
+            emptyBox.setAlignment(Pos.CENTER);
+            content.getChildren().add(emptyBox);
         } else {
             // Create table for messages
             TableView<DatabaseManager.ApplicantMessage> messageTable = new TableView<>();
@@ -526,7 +551,9 @@ public class AdminDashboardController {
             dateCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCreatedAt()));
             dateCol.setPrefWidth(150);
             
-            messageTable.getColumns().addAll(appIdCol, messageCol, statusCol, dateCol);
+            @SuppressWarnings("unchecked")
+            TableColumn<DatabaseManager.ApplicantMessage, ?>[] messageCols = new TableColumn[]{appIdCol, messageCol, statusCol, dateCol};
+            messageTable.getColumns().addAll(messageCols);
             messageTable.setItems(FXCollections.observableArrayList(messages));
             
             // Buttons for message actions
@@ -534,6 +561,7 @@ public class AdminDashboardController {
             buttonBox.setAlignment(Pos.CENTER);
             
             Button viewButton = new Button("View Full Message");
+            viewButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
             viewButton.setOnAction(e -> {
                 DatabaseManager.ApplicantMessage selected = messageTable.getSelectionModel().getSelectedItem();
                 if (selected != null) {
@@ -544,6 +572,7 @@ public class AdminDashboardController {
             });
             
             Button markReadButton = new Button("Mark as Read");
+            markReadButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
             markReadButton.setOnAction(e -> {
                 DatabaseManager.ApplicantMessage selected = messageTable.getSelectionModel().getSelectedItem();
                 if (selected != null) {
@@ -558,6 +587,7 @@ public class AdminDashboardController {
             });
             
             Button historyButton = new Button("View Applicant History");
+            historyButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white;");
             historyButton.setOnAction(e -> {
                 DatabaseManager.ApplicantMessage selected = messageTable.getSelectionModel().getSelectedItem();
                 if (selected != null) {
@@ -618,7 +648,7 @@ public class AdminDashboardController {
         
         try (Connection conn = dbManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                 "SELECT national_id, passport FROM applicants WHERE application_id = ?")) {
+                 "SELECT national_id, passport, nationality FROM applicants WHERE application_id = ?")) {
             
             stmt.setString(1, applicationId);
             ResultSet rs = stmt.executeQuery();
@@ -626,8 +656,9 @@ public class AdminDashboardController {
             if (rs.next()) {
                 String nationalId = rs.getString("national_id");
                 String passport = rs.getString("passport");
+                String nationality = rs.getString("nationality");
                 
-                showTravelHistory(nationalId, passport);
+                showTravelHistory(nationalId, passport, nationality);
             } else {
                 showError("Application not found");
             }
@@ -637,17 +668,17 @@ public class AdminDashboardController {
         }
     }
     
-    private void showTravelHistory(String nationalId, String passport) {
+    private void showTravelHistory(String nationalId, String passport, String nationality) {
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Travel History");
-        dialog.setHeaderText("Complete travel history for NID: " + nationalId + " | Passport: " + passport);
+        dialog.setTitle("Complete Travel History");
+        dialog.setHeaderText("All visa applications | Nationality: " + nationality + " | NID: " + nationalId + " | Passport: " + passport);
         
         VBox content = new VBox(15);
         content.setPadding(new Insets(20));
         content.setPrefSize(900, 500);
         
         DatabaseManager dbManager = DatabaseManager.getInstance();
-        List<DatabaseManager.TravelHistory> history = dbManager.getTravelHistory(nationalId, passport);
+        List<DatabaseManager.TravelHistory> history = dbManager.getTravelHistory(nationalId, passport, nationality);
         
         if (history.isEmpty()) {
             Label noHistory = new Label("No travel history found.");
@@ -674,7 +705,7 @@ public class AdminDashboardController {
             statusCol.setPrefWidth(100);
             
             TableColumn<DatabaseManager.TravelHistory, String> dateCol = new TableColumn<>("Date");
-            dateCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getApplicationDate()));
+            dateCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAppliedDate()));
             dateCol.setPrefWidth(150);
             
             TableColumn<DatabaseManager.TravelHistory, String> rejectionCol = new TableColumn<>("Rejection Reason");
@@ -685,7 +716,9 @@ public class AdminDashboardController {
             banCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getBanUntilDate() != null ? data.getValue().getBanUntilDate() : ""));
             banCol.setPrefWidth(110);
             
-            historyTable.getColumns().addAll(appIdCol, countryCol, visaTypeCol, statusCol, dateCol, rejectionCol, banCol);
+            @SuppressWarnings("unchecked")
+            TableColumn<DatabaseManager.TravelHistory, ?>[] historyCols = new TableColumn[]{appIdCol, countryCol, visaTypeCol, statusCol, dateCol, rejectionCol, banCol};
+            historyTable.getColumns().addAll(historyCols);
             historyTable.setItems(FXCollections.observableArrayList(history));
             
             content.getChildren().add(historyTable);

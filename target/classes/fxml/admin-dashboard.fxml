@@ -24,7 +24,7 @@
                     <Font size="14"/>
                 </font>
             </Label>
-            <Button text="🔄 Refresh" onAction="#handleRefresh" styleClass="btn-secondary" style="-fx-margin-right: 10;"/>
+            <Button text="� Manage Notices" onAction="#handleManageNotices" styleClass="btn-secondary" style="-fx-margin-right: 10;"/>            <Button text="💬 Messages" onAction="#handleViewMessages" styleClass="btn-secondary" style="-fx-margin-right: 10;"/>            <Button text="�🔄 Refresh" onAction="#handleRefresh" styleClass="btn-secondary" style="-fx-margin-right: 10;"/>
             <Button text="Logout" onAction="#handleLogout" styleClass="btn-secondary"/>
         </HBox>
     </top>

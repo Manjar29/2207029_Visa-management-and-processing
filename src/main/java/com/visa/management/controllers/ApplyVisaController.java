@@ -127,9 +127,34 @@ public class ApplyVisaController {
         String visaType = VisaApplicationSession.getInstance().getSelectedVisaType();
         String nationalId = nationalIdField.getText().trim();
         String passport = passportField.getText().trim();
+        String nationality = nationalityCombo.getValue();
+        
+        // Validate formats
+        String formatError = validateFormats(nationalId, passport, nationality);
+        if (formatError != null) {
+            showAlert("Validation Error", formatError, Alert.AlertType.ERROR);
+            return;
+        }
+        
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        
+        // Check for existing application (duplicate prevention)
+        DatabaseManager.ApplicationInfo existingApp = dbManager.checkExistingApplication(nationalId, passport, country);
+        if (existingApp != null) {
+            String duplicateMessage = "⚠️ DUPLICATE APPLICATION DETECTED\n\n" +
+                                    "You already have an active application for " + country + ".\n\n" +
+                                    "Application ID: " + existingApp.getApplicationId() + "\n" +
+                                    "Status: " + existingApp.getStatus() + "\n" +
+                                    "Submitted: " + existingApp.getCreatedAt() + "\n\n" +
+                                    "You cannot submit multiple applications to the same country while one is " +
+                                    "still Processing or Approved.\n\n" +
+                                    "Please wait for your current application to be finalized before reapplying.";
+            
+            showAlert("Duplicate Application", duplicateMessage, Alert.AlertType.WARNING);
+            return;
+        }
         
         // Check if applicant is banned from reapplying
-        DatabaseManager dbManager = DatabaseManager.getInstance();
         DatabaseManager.RejectionBan rejectionBan = dbManager.checkRejectionBan(nationalId, passport, country);
         
         if (rejectionBan.isBanned()) {
@@ -352,6 +377,48 @@ public class ApplyVisaController {
         }
     }
 
+    private String validateFormats(String nationalId, String passport, String nationality) {
+        // Validate National ID format (alphanumeric, 8-20 characters)
+        if (!nationalId.matches("^[A-Z0-9]{8,20}$")) {
+            return "Invalid National ID format.\n" +
+                   "Must be 8-20 alphanumeric characters (uppercase).\n" +
+                   "Example: NID123456789";
+        }
+        
+        // Validate Passport format (alphanumeric, 6-15 characters)
+        if (!passport.matches("^[A-Z0-9]{6,15}$")) {
+            return "Invalid Passport Number format.\n" +
+                   "Must be 6-15 alphanumeric characters (uppercase).\n" +
+                   "Example: AB1234567";
+        }
+        
+        // Validate email format
+        String email = emailField.getText().trim();
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            return "Invalid email address format.\n" +
+                   "Example: user@example.com";
+        }
+        
+        // Validate phone format (digits, optional + prefix, 10-15 digits)
+        String phone = phoneField.getText().trim();
+        if (!phone.matches("^\\+?[0-9]{10,15}$")) {
+            return "Invalid phone number format.\n" +
+                   "Must be 10-15 digits (optional + prefix).\n" +
+                   "Example: +1234567890";
+        }
+        
+        // Basic nationality-passport consistency check
+        // (This is a simplified check - real-world would need comprehensive country-passport prefix mapping)
+        String passportPrefix = passport.substring(0, Math.min(2, passport.length()));
+        if (nationality.equals("Bangladesh") && !passportPrefix.matches("^[AB].*")) {
+            return "Passport number appears inconsistent with nationality.\n" +
+                   "Bangladeshi passports typically start with 'A' or 'B'.\n" +
+                   "Please verify your information.";
+        }
+        
+        return null; // No validation errors
+    }
+    
     private boolean validateForm() {
         // Validate common fields
         boolean basicValid = !firstNameField.getText().isEmpty() &&

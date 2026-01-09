@@ -16,6 +16,8 @@
                 <Insets top="20" right="40" bottom="20" left="40"/>
             </padding>
             <Button text="← Back to Dashboard" onAction="#handleBack" styleClass="btn-back"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="📋 View Travel History" onAction="#handleViewTravelHistory" styleClass="btn-secondary"/>
             <Label text="🌍 Application Details" styleClass="logo">
                 <font>
                     <Font name="System Bold" size="24"/>

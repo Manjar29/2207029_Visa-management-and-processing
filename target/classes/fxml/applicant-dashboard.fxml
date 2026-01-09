@@ -28,6 +28,7 @@
                     <Font size="14"/>
                 </font>
             </Label>
+            <Button fx:id="messageButton" text="💬 Message Admin" onAction="#handleSendMessage" styleClass="btn-secondary" style="-fx-margin-right: 10;"/>
             <Button text="Logout" onAction="#handleLogout" styleClass="btn-secondary"/>
         </HBox>
 
