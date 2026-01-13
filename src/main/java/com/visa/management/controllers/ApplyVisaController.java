@@ -378,17 +378,17 @@ public class ApplyVisaController {
     }
 
     private String validateFormats(String nationalId, String passport, String nationality) {
-        // Validate National ID format (alphanumeric, 8-20 characters)
-        if (!nationalId.matches("^[A-Z0-9]{8,20}$")) {
+        // Validate National ID (digits only, max 17 digits)
+        if (!nationalId.matches("^[0-9]{1,17}$")) {
             return "Invalid National ID format.\n" +
-                   "Must be 8-20 alphanumeric characters (uppercase).\n" +
-                   "Example: NID123456789";
+                   "Must be numeric only and not exceed 17 digits.\n" +
+                   "Example: 12345678901234567";
         }
         
-        // Validate Passport format (alphanumeric, 6-15 characters)
-        if (!passport.matches("^[A-Z0-9]{6,15}$")) {
+        // Validate Passport (alphanumeric, max 10 characters)
+        if (!passport.matches("^[A-Za-z0-9]{1,10}$")) {
             return "Invalid Passport Number format.\n" +
-                   "Must be 6-15 alphanumeric characters (uppercase).\n" +
+                   "Must be alphanumeric and not exceed 10 characters.\n" +
                    "Example: AB1234567";
         }
         
@@ -399,21 +399,13 @@ public class ApplyVisaController {
                    "Example: user@example.com";
         }
         
-        // Validate phone format (digits, optional + prefix, 10-15 digits)
+        // Validate phone (digits only with optional + prefix, max 13 digits)
         String phone = phoneField.getText().trim();
-        if (!phone.matches("^\\+?[0-9]{10,15}$")) {
+        if (!phone.matches("^\\+?[0-9]{1,13}$")) {
             return "Invalid phone number format.\n" +
-                   "Must be 10-15 digits (optional + prefix).\n" +
-                   "Example: +1234567890";
-        }
-        
-        // Basic nationality-passport consistency check
-        // (This is a simplified check - real-world would need comprehensive country-passport prefix mapping)
-        String passportPrefix = passport.substring(0, Math.min(2, passport.length()));
-        if (nationality.equals("Bangladesh") && !passportPrefix.matches("^[AB].*")) {
-            return "Passport number appears inconsistent with nationality.\n" +
-                   "Bangladeshi passports typically start with 'A' or 'B'.\n" +
-                   "Please verify your information.";
+                   "Must be numeric only and not exceed 13 digits.\n" +
+                   "Optional + prefix allowed.\n" +
+                   "Example: +8801234567890";
         }
         
         return null; // No validation errors
